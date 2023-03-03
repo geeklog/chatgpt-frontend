@@ -4,9 +4,8 @@ import { Input, InputGroup, InputRightElement } from "@chakra-ui/react";
 import { v4 as uuidv4 } from 'uuid';
 import './ChatWindow.css'
 import Loading from "./components/Loading";
-
-const CHATGPT_API_ENDPOINT = 'https://chatgpt-api-server.vercel.app/chat'
-// const CHATGPT_API_ENDPOINT = 'http://127.0.0.1:5000/chat'
+import useMemoryStorage from './hooks/useMemoryStorage';
+import * as api from './api/api';
 
 enum Sender {
   User,
@@ -26,14 +25,16 @@ interface Message {
   pair?: string; // 用来标记移除Pending
 }
 
+const removePending = (msgs: Message[], pair: string) =>
+msgs.filter(msg => msg.pair !== pair);
+
 function ChatWindow({userId}: {userId: string}) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState('');
   const messagesRef = useRef(null);
-
-  const removePending = (msgs: Message[], pair: string) =>
-    msgs.filter(msg => msg.pair !== pair);
-
+  
+  const [sessionID] = useMemoryStorage('chat-session-id', uuidv4());
+  
   const handleSendMessage = async () => {
     if (!message.trim()) {
       return;
@@ -52,16 +53,10 @@ function ChatWindow({userId}: {userId: string}) {
     setMessages(messagesWithPending);
 
     try {
-      const response = await fetch(CHATGPT_API_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: message })
-      });
-      const data = await response.json();
-
+      const answer = await api.chat(message, sessionID);
       setMessages([
         ...removePending(messagesWithPending, pair),
-        {sender: Sender.Bot, msg: data.answer.trim(), status: MessageStatus.Normal, pair}
+        {sender: Sender.Bot, msg: answer, status: MessageStatus.Normal, pair}
       ]);
     } catch (error: any) {
       setMessages([
