@@ -3,6 +3,7 @@ import { Box, VStack } from "@chakra-ui/react";
 import { Input, InputGroup, InputRightElement } from "@chakra-ui/react";
 import { v4 as uuidv4 } from 'uuid';
 import './ChatWindow.css'
+import Loading from "./components/Loading";
 
 const CHATGPT_API_ENDPOINT = 'https://chatgpt-api-server.vercel.app/chat'
 // const CHATGPT_API_ENDPOINT = 'http://127.0.0.1:5000/chat'
@@ -142,9 +143,12 @@ function BubbleMessage(msg: Message) {
         backgroundColor={bg}
         color={textColor}
         style={bubbleStyle}
-      >{
-        msg.msg.split('\n').map(m => <div>{m}</div>)
-      }</Box>
+      >
+        { msg.status === MessageStatus.Pending
+            ? <Loading/>
+            : msg.msg.split('\n').map(m => <div>{m}</div>)
+        }
+      </Box>
     </Box>
   );
 }
