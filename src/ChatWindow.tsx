@@ -4,8 +4,8 @@ import { Input, InputGroup, InputRightElement } from "@chakra-ui/react";
 import { v4 as uuidv4 } from 'uuid';
 import './ChatWindow.css'
 
-// const CHATGPT_API_ENDPOINT = 'https://chatgpt-api-server.vercel.app/chat'
-const CHATGPT_API_ENDPOINT = 'http://127.0.0.1:5000/chat'
+const CHATGPT_API_ENDPOINT = 'https://chatgpt-api-server.vercel.app/chat'
+// const CHATGPT_API_ENDPOINT = 'http://127.0.0.1:5000/chat'
 
 enum Sender {
   User,
