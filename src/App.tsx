@@ -1,24 +1,49 @@
-import React from 'react';
-import logo from './logo.svg';
+import { useState } from 'react';
 import './App.css';
 
+const CHATGPT_API_ENDPOINT = 'https://8879-183-178-25-4.ap.ngrok.io/chat'
+
 function App() {
+  const [chatHistory, setChatHistory] = useState<Array<string>>([]);
+  
+  const [prompt, setPrompt] = useState('');
+
+  const handleInput = (event: any) => {
+    setPrompt(event.target.value);
+  }
+
+  const handleSubmit = async () => {
+    const currHistory = [...chatHistory, '我: ' + prompt];
+    setChatHistory(currHistory);
+
+    await new Promise((r) => setTimeout(r, 1000));
+    const response = await fetch(CHATGPT_API_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    const data = await response.json();
+    setChatHistory([...currHistory, 'ChatGPT: ' + data.answer.trim()]);
+    setPrompt('');
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='app'>
+      <div className='chatHistory'>{
+        chatHistory.map(chatLine =>
+          <div className='chatLine'>{
+            chatLine.split('\n').map(sentence =>
+              <><span>{sentence}</span><br/></>
+            )
+          }</div>
+        )
+      }</div>
+      <div className='prompt'>
+        <textarea className='prompt-input' value={prompt} onChange={handleInput} />
+      </div>
+      <div className='submit'>
+        <button onClick={handleSubmit}>提交</button>
+      </div>
     </div>
   );
 }
