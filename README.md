@@ -11,3 +11,8 @@ pnpm install
 ```
 pnpm start
 ```
+
+## Todos
+
+- [ ] Use session id to help ChatGPT to remember the context
+- [ ] 
