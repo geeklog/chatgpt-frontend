@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 
-const CHATGPT_API_ENDPOINT = 'https://8879-183-178-25-4.ap.ngrok.io/chat'
+const CHATGPT_API_ENDPOINT = 'https://chatgpt-api-server.vercel.app/chat'
 
 function App() {
   const [chatHistory, setChatHistory] = useState<Array<string>>([]);
