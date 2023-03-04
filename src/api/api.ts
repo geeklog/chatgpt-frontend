@@ -10,6 +10,9 @@ export async function chat(message: string, sessionID: string) {
       session: sessionID
     })
   });
-  const data = await response.json();
-  return data.answer.trim();
+  if (response.status === 200) {
+    const data = await response.json();
+    return data.answer.trim();
+  }
+  throw new Error('' + response.text);
 }

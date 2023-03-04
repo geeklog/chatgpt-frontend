@@ -1,8 +1,8 @@
 import './Loading.css';
 
-function Loading() {
+function Loading({style}: {style: any}) {
   return (
-    <div className="loading">
+    <div className="loading" style={style}>
       <span></span>
       <span></span>
       <span></span>

@@ -1,0 +1,14 @@
+:not(pre) > code.chakra-code {
+  padding: 2px 2px;
+  line-height: 0.9em;
+}
+
+pre {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+pre > code.charkra-code {
+  white-space: nowrap;
+  overflow-x: auto;
+}
