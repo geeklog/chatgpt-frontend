@@ -14,4 +14,5 @@ export interface Message {
   msg: string;
   status: MessageStatus,
   pair: string; // 用来标记移除Pending
+  sessionID: string;
 }

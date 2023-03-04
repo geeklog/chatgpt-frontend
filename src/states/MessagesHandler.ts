@@ -1,44 +1,50 @@
 import { Message, MessageStatus, Sender } from "../types";
 
-export const replaceBotPendingBubbleWithAnswer = (msgs: Message[], pair: string, answer: string) => {
+export const replaceBotPendingBubbleWithAnswer = (
+  {messages, pair, answer, sessionID}: {messages: Message[], pair: string, answer: string, sessionID: string}
+): Message[] => {
   const newMsgs = [];
-  for (let i=0; i<msgs.length; i++) {
-    const msg = msgs[i];
+  for (let i=0; i<messages.length; i++) {
+    const msg = messages[i];
     if (!(msg.pair === pair && msg.sender === Sender.Bot && msg.status === MessageStatus.Pending)) {
       newMsgs.push(msg);
       continue;
     }
-    newMsgs.push({sender: Sender.Bot, msg: answer, status: MessageStatus.Normal, pair});
+    newMsgs.push({sender: Sender.Bot, msg: answer, status: MessageStatus.Normal, pair, sessionID});
   }
   return newMsgs;
 }
 
-export const replaceBotPendingBubbleWithError = (msgs: Message[], pair: string, errorMessage: string) => {
+export const replaceBotPendingBubbleWithError = (
+  {messages, pair, errorMessage, sessionID}: {messages: Message[], pair: string, errorMessage: string, sessionID: string}
+): Message[] => {
   const newMsgs = [];
-  for (let i=0; i<msgs.length; i++) {
-    const msg = msgs[i];
+  for (let i=0; i<messages.length; i++) {
+    const msg = messages[i];
     if (!(msg.pair === pair && msg.sender === Sender.Bot && msg.status === MessageStatus.Pending)) {
       newMsgs.push(msg);
       continue;
     }
-    newMsgs.push({sender: Sender.Bot, msg: errorMessage, status: MessageStatus.Error, pair});
+    newMsgs.push({sender: Sender.Bot, msg: errorMessage, status: MessageStatus.Error, pair, sessionID});
   }
   return newMsgs;
 }
 
-export const replaceBotErrorBubbleWithPending = (msgs: Message[], pair: string) => {
+export const replaceBotErrorBubbleWithPending = (
+  {messages, pair, sessionID}: {messages: Message[], pair: string, sessionID: string}
+): Message[] => {
   const newMsgs = [];
-  for (let i=0; i<msgs.length; i++) {
-    const msg = msgs[i];
+  for (let i=0; i<messages.length; i++) {
+    const msg = messages[i];
     if (!(msg.pair === pair && msg.sender === Sender.Bot && msg.status === MessageStatus.Error)) {
       newMsgs.push(msg);
       continue;
     }
-    newMsgs.push({sender: Sender.Bot, msg: '...', status: MessageStatus.Pending, pair});
+    newMsgs.push({sender: Sender.Bot, msg: '...', status: MessageStatus.Pending, pair, sessionID});
   }
   return newMsgs;
 }
 
-export const getLastestUserQuery = (msgs: Message[], pair: string) => {
-  return msgs.filter(msg => msg.pair === pair && msg.sender === Sender.User).pop()?.msg;
+export const getLastestUserQuery = (messages: Message[], pair: string) => {
+  return messages.filter(msg => msg.pair === pair && msg.sender === Sender.User).pop()?.msg;
 }

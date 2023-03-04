@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { Box, VStack, Tooltip, Button } from "@chakra-ui/react";
+import { useState } from "react";
+import { Box, VStack, Tooltip } from "@chakra-ui/react";
 import { Input, InputGroup, InputRightElement } from "@chakra-ui/react";
 import { v4 as uuidv4 } from 'uuid';
 import './ChatWindow.css'
@@ -8,40 +8,31 @@ import * as api from './api/api';
 import SendButton from "./components/icons/SendButton";
 import { QuestionIcon } from '@chakra-ui/icons';
 import { Message, MessageStatus, Sender } from "./types";
-import BubbleMessage from "./MessageBubble";
+import MessageBubble from "./MessageBubble";
 import { getLastestUserQuery, replaceBotErrorBubbleWithPending, replaceBotPendingBubbleWithAnswer, replaceBotPendingBubbleWithError } from "./states/MessagesHandler";
+import useScrollToBottom from "./hooks/useScrollToBottom";
 
 function ChatWindow({userId}: {userId: string}) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [typing, setTyping] = useState('');
-  const messagesRef = useRef<HTMLDivElement>(null);
-  
+  const [messagesRef, scrollToBottom] = useScrollToBottom();
   const [sessionID] = useMemoryStorage('chat-session-id', uuidv4());
 
-  const scrollToBottom = () => {
-    if (messagesRef.current)
-      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
-  }
-
   const handleReloadMessage = async (pair: string) => {
-    console.log('handleReload', pair)
     const prevQuery = getLastestUserQuery(messages, pair);
     if (!prevQuery) {
       return;
     }
 
+    let msgsWithPending = replaceBotErrorBubbleWithPending({messages, pair, sessionID});
     try {
-      let r = replaceBotErrorBubbleWithPending(messages, pair);
-      setMessages(r);
-      console.log('a', r);
+      setMessages(msgsWithPending);
       const answer = await api.chat(prevQuery, sessionID);
-      let rr = replaceBotPendingBubbleWithAnswer(r, pair, answer);
-      console.log('b', rr);
-      setMessages(rr);
+      let msgsWithLatestAnswer = replaceBotPendingBubbleWithAnswer({messages: msgsWithPending, pair, answer, sessionID});
+      setMessages(msgsWithLatestAnswer);
     } catch (error: any) {
-      console.log(error);
       setMessages(
-        replaceBotPendingBubbleWithError(messages, pair, error.message)
+        replaceBotPendingBubbleWithError({messages: msgsWithPending, pair, errorMessage: error.message, sessionID})
       );
     }
   }
@@ -56,8 +47,8 @@ function ChatWindow({userId}: {userId: string}) {
 
     const messagesWithPending = [
       ...messages,
-      {sender: Sender.User, msg, status: MessageStatus.Normal, pair},
-      {sender: Sender.Bot, msg: '...', status: MessageStatus.Pending, pair},
+      {sender: Sender.User, msg, status: MessageStatus.Normal, pair, sessionID},
+      {sender: Sender.Bot, msg: '...', status: MessageStatus.Pending, pair, sessionID},
     ];
     
     setTyping('');
@@ -67,12 +58,14 @@ function ChatWindow({userId}: {userId: string}) {
     try {
       const answer = await api.chat(typing, sessionID);
       setMessages(
-        replaceBotPendingBubbleWithAnswer(messagesWithPending, pair, answer)
+        replaceBotPendingBubbleWithAnswer({messages: messagesWithPending, pair, answer, sessionID})
       );
       scrollToBottom();
     } catch (error: any) {
       setMessages(
-        replaceBotPendingBubbleWithError(messagesWithPending, pair, error.message)
+        replaceBotPendingBubbleWithError({
+          messages: messagesWithPending, pair, errorMessage: error.message, sessionID
+        })
       );
     }
   };
@@ -87,12 +80,12 @@ function ChatWindow({userId}: {userId: string}) {
         h="100%"
         maxH="calc(100% - 3rem)"
         overflowY="auto"
-        px={3}
-        py={1}
+        px={5}
+        py={3}
       >
         {
           messages.map((msg, i) =>
-            <BubbleMessage
+            <MessageBubble
               key={i}
               msg={msg}
               handleReloadMessage={handleReloadMessage}
@@ -104,7 +97,7 @@ function ChatWindow({userId}: {userId: string}) {
         <Input
           size="lg"
           type="text"
-          placeholder="请在这里提问..."
+          placeholder="请在这里输入..."
           value={typing}
           onChange={(e) => setTyping(e.target.value)}
           onKeyUp={(e) => {

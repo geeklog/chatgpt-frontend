@@ -5,19 +5,21 @@ import ReactMarkdown from 'react-markdown';
 import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
 import './MessageBubble.css'
 import { RepeatIcon } from '@chakra-ui/icons';
+import { uuidToEmoji } from './utils/emoji';
 
 function ReloadButton(props: any) {
   return <RepeatIcon {...props} />
 }
 
-function BubbleMessage({msg, handleReloadMessage}: {
+function MessageBubble({msg, handleReloadMessage}: {
   msg: Message,
   handleReloadMessage: (pair: string) => void
 }) {
   const isSelf = msg.sender === Sender.User;
   const isError = msg.status === MessageStatus.Error;
-  const bg = isError ? "red.500" : (isSelf ? "blue.500" : "gray.500");
-  const textColor = isSelf ? "white" : "gray.50";
+  const isBot = msg.sender === Sender.Bot;
+  const bg = isError ? "red.500" : (isSelf ? "blue.500" : "gray.50");
+  const textColor = isError ? "white": (isSelf ? "white" : "gray.500");
   const justify = isSelf ? "flex-end" : "flex-start";
   let bubbleStyle = {
     display: "inline-block",
@@ -32,7 +34,15 @@ function BubbleMessage({msg, handleReloadMessage}: {
   }
 
   return (
-    <Box w="100%" display="flex" justifyContent={justify} mb={3}>
+    <Box w="100%" display="flex" justifyContent={justify} position="relative" mb={3}>
+      {isBot && <div style={{
+        position: 'absolute',
+        fontSize: '1.6rem',
+        left: '-0.5rem',
+        top: '-1rem'
+      }}>
+        {uuidToEmoji(msg.sessionID)}
+      </div>}
       <Box
         backgroundColor={bg}
         color={textColor}
@@ -48,7 +58,11 @@ function BubbleMessage({msg, handleReloadMessage}: {
             : isError
               ? <>{msg.msg} <ReloadButton/></>
               : msg.sender === Sender.Bot && msg.status == MessageStatus.Normal
-                ? <ReactMarkdown components={ChakraUIRenderer()} children={msg.msg} skipHtml />
+                ? <ReactMarkdown
+                    components={ChakraUIRenderer()}
+                    children={msg.msg}
+                    skipHtml
+                  />
                 : <div>{msg.msg}</div>
         }
       </Box>
@@ -56,4 +70,4 @@ function BubbleMessage({msg, handleReloadMessage}: {
   );
 }
 
-export default BubbleMessage;
+export default MessageBubble;
