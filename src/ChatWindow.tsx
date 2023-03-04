@@ -7,16 +7,22 @@ import useMemoryStorage from './hooks/useMemoryStorage';
 import * as api from './api/api';
 import SendButton from "./components/icons/SendButton";
 import { QuestionIcon } from '@chakra-ui/icons';
-import { Message, MessageStatus, Sender } from "./types";
+import { Message, MessageStatus, Sender } from './types';
 import MessageBubble from "./MessageBubble";
 import { getLastestUserQuery, replaceBotErrorBubbleWithPending, replaceBotPendingBubbleWithAnswer, replaceBotPendingBubbleWithError } from "./states/MessagesHandler";
 import useScrollToBottom from "./hooks/useScrollToBottom";
 
 function ChatWindow({userId}: {userId: string}) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [sessionID] = useMemoryStorage('chat-session-id', uuidv4());
+  const [messages, setMessages] = useState<Message[]>([{
+    msg: '欢迎使用ChatGPT，现已支持对话上下文功能，最大聊天记录为50条，超过会50条会清空，刷新或关掉页面也会清空',
+    pair: '0',
+    sender: Sender.Bot,
+    status: MessageStatus.Normal,
+    sessionID
+  }]);
   const [typing, setTyping] = useState('');
   const [messagesRef, scrollToBottom] = useScrollToBottom();
-  const [sessionID] = useMemoryStorage('chat-session-id', uuidv4());
 
   const handleReloadMessage = async (pair: string) => {
     const prevQuery = getLastestUserQuery(messages, pair);
@@ -71,10 +77,7 @@ function ChatWindow({userId}: {userId: string}) {
   };
 
   return (
-    <Box h="100%" w="100%" maxW="600px" bg="gray.100" style={{position: 'relative'}}>
-      <Tooltip label="现已支持对话上下文功能，最大聊天记录为50条，超过会50条会清空，刷新或关掉页面也会清空">
-        <QuestionIcon boxSize="6" color="gray.600" style={{position: 'absolute', left: '1em', top: '1em'}} />
-      </Tooltip>
+    <Box h="100%" w="100%" maxW="600px" bg="gray.100" style={{position: 'relative', paddingTop: '20px'}}>
       <VStack
         ref={messagesRef}
         h="100%"
