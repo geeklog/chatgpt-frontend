@@ -2,7 +2,15 @@ import {Flex} from '@chakra-ui/react';
 import { extendTheme, ChakraBaseProvider } from '@chakra-ui/react'
 import ChatWindow from './ChatWindow';
 
-const theme = extendTheme({ })
+const theme = extendTheme({
+  styles: {
+    global: (props: any) => ({
+      body: {
+        bgColor: '#3182ce'
+      }
+    })
+  },
+})
 
 function App() {
   return (

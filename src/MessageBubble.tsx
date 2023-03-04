@@ -1,11 +1,11 @@
-import { Box } from '@chakra-ui/react';
+import { Avatar, Box } from '@chakra-ui/react';
 import Loading from './components/Loading';
 import { Message, MessageStatus, Sender } from './types';
-import ReactMarkdown from 'react-markdown';
-import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
 import './MessageBubble.css'
 import { RepeatIcon } from '@chakra-ui/icons';
-import { uuidToEmoji } from './utils/emoji';
+import { uuid2number } from './utils/hashing';
+import './Avatar.css'
+import MarkdownPreview from './components/MarkdownPreview';
 
 function ReloadButton(props: any) {
   return <RepeatIcon {...props} />
@@ -23,7 +23,7 @@ function MessageBubble({msg, handleReloadMessage}: {
   const justify = isSelf ? "flex-end" : "flex-start";
   let bubbleStyle = {
     display: "inline-block",
-    maxWidth: "calc(100%-5rem)",
+    maxWidth: isSelf ? "70%": "calc(100%-7rem)",
     padding: "0.5rem 1rem",
     borderRadius: "1rem",
     backgroundColor: "gray.300",
@@ -34,15 +34,10 @@ function MessageBubble({msg, handleReloadMessage}: {
   }
 
   return (
-    <Box w="100%" display="flex" justifyContent={justify} position="relative" mb={3}>
-      {isBot && <div style={{
-        position: 'absolute',
-        fontSize: '1.6rem',
-        left: '-0.5rem',
-        top: '-1rem'
-      }}>
-        {uuidToEmoji(msg.sessionID)}
-      </div>}
+    <Box w="100%" display="flex" justifyContent={justify} position="relative" >
+      {isBot &&
+        <Avatar mt={1} mr={2} src={`/avatars/bot${1+uuid2number(msg.sessionID)%8}.webp`} objectPosition="top" />
+      }
       <Box
         backgroundColor={bg}
         color={textColor}
@@ -58,11 +53,7 @@ function MessageBubble({msg, handleReloadMessage}: {
             : isError
               ? <>{msg.msg} <ReloadButton/></>
               : msg.sender === Sender.Bot && msg.status == MessageStatus.Normal
-                ? <ReactMarkdown
-                    components={ChakraUIRenderer()}
-                    children={msg.msg}
-                    skipHtml
-                  />
+                ? <MarkdownPreview markdown={msg.msg}/>
                 : <div>{msg.msg}</div>
         }
       </Box>

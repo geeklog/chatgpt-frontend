@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from 'react';
 import { Box, VStack, Tooltip } from "@chakra-ui/react";
 import { Input, InputGroup, InputRightElement } from "@chakra-ui/react";
 import { v4 as uuidv4 } from 'uuid';
@@ -6,23 +6,58 @@ import './ChatWindow.css'
 import useMemoryStorage from './hooks/useMemoryStorage';
 import * as api from './api/api';
 import SendButton from "./components/icons/SendButton";
-import { QuestionIcon } from '@chakra-ui/icons';
 import { Message, MessageStatus, Sender } from './types';
 import MessageBubble from "./MessageBubble";
 import { getLastestUserQuery, replaceBotErrorBubbleWithPending, replaceBotPendingBubbleWithAnswer, replaceBotPendingBubbleWithError } from "./states/MessagesHandler";
 import useScrollToBottom from "./hooks/useScrollToBottom";
+import texts from './states/texts';
+import { randomChoose } from './utils/array';
 
 function ChatWindow({userId}: {userId: string}) {
   const [sessionID] = useMemoryStorage('chat-session-id', uuidv4());
-  const [messages, setMessages] = useState<Message[]>([{
-    msg: '欢迎使用ChatGPT，现已支持对话上下文功能，最大聊天记录为50条，超过会50条会清空，刷新或关掉页面也会清空',
-    pair: '0',
-    sender: Sender.Bot,
-    status: MessageStatus.Normal,
-    sessionID
-  }]);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      msg: '欢迎使用ChatGPT',
+      pair: '0',
+      sender: Sender.Bot,
+      status: MessageStatus.Normal,
+      sessionID
+    }
+  ]);
   const [typing, setTyping] = useState('');
   const [messagesRef, scrollToBottom] = useScrollToBottom();
+
+  // useEffect(() => {
+  //   handleInitialPrompt();
+  // }, [sessionID]);
+
+  const handleInitialPrompt = async () => {
+    const prompt = randomChoose(texts.initialPrompts);
+
+    const pair = uuidv4();
+
+    const messagesWithPending = [
+      ...messages,
+      {sender: Sender.Bot, msg: '...', status: MessageStatus.Pending, pair, sessionID},
+    ];
+
+    setMessages(messagesWithPending);
+    scrollToBottom();
+
+    try {
+      const answer = await api.chat(prompt, sessionID);
+      setMessages(
+        replaceBotPendingBubbleWithAnswer({messages: messagesWithPending, pair, answer, sessionID})
+      );
+      scrollToBottom();
+    } catch (error: any) {
+      setMessages(
+        replaceBotPendingBubbleWithError({
+          messages: messagesWithPending, pair, errorMessage: error.message, sessionID
+        })
+      );
+    }
+  };
 
   const handleReloadMessage = async (pair: string) => {
     const prevQuery = getLastestUserQuery(messages, pair);
@@ -44,16 +79,16 @@ function ChatWindow({userId}: {userId: string}) {
   }
   
   const handleSendMessage = async () => {
-    if (!typing.trim()) {
+    const prompt = typing.trim();
+    if (!prompt) {
       return;
     }
-    const msg = typing.trim();
 
     const pair = uuidv4();
 
     const messagesWithPending = [
       ...messages,
-      {sender: Sender.User, msg, status: MessageStatus.Normal, pair, sessionID},
+      {sender: Sender.User, msg: prompt, status: MessageStatus.Normal, pair, sessionID},
       {sender: Sender.Bot, msg: '...', status: MessageStatus.Pending, pair, sessionID},
     ];
     
@@ -77,12 +112,13 @@ function ChatWindow({userId}: {userId: string}) {
   };
 
   return (
-    <Box h="100%" w="100%" maxW="600px" bg="gray.100" style={{position: 'relative'}}>
+    <Box h="100%" w="100%" maxW="800px" bg="gray.100" style={{position: 'relative'}}>
       <VStack
         ref={messagesRef}
         h="100%"
         maxH="calc(100% - 3rem)"
         overflowY="auto"
+        overflowX="hidden"
         spacing='5'
         px={5}
         py={10}
@@ -97,7 +133,7 @@ function ChatWindow({userId}: {userId: string}) {
           )
         }
       </VStack>
-      <InputGroup>
+      <InputGroup pl={2} pr={2}>
         <Input
           size="lg"
           type="text"
@@ -110,6 +146,8 @@ function ChatWindow({userId}: {userId: string}) {
         />
         <InputRightElement
           h="100%"
+          pr={2}
+          color="blue.500"
           children={<SendButton onClick={handleSendMessage} />}
         />
       </InputGroup>
