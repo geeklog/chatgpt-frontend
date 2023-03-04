@@ -77,14 +77,15 @@ function ChatWindow({userId}: {userId: string}) {
   };
 
   return (
-    <Box h="100%" w="100%" maxW="600px" bg="gray.100" style={{position: 'relative', paddingTop: '20px'}}>
+    <Box h="100%" w="100%" maxW="600px" bg="gray.100" style={{position: 'relative'}}>
       <VStack
         ref={messagesRef}
         h="100%"
         maxH="calc(100% - 3rem)"
         overflowY="auto"
+        spacing='5'
         px={5}
-        py={3}
+        py={10}
       >
         {
           messages.map((msg, i) =>
@@ -100,7 +101,7 @@ function ChatWindow({userId}: {userId: string}) {
         <Input
           size="lg"
           type="text"
-          placeholder="请在这里输入..."
+          placeholder="你想聊点什么..."
           value={typing}
           onChange={(e) => setTyping(e.target.value)}
           onKeyUp={(e) => {
