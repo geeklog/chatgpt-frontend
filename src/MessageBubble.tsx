@@ -19,7 +19,7 @@ function MessageBubble({msg, handleReloadMessage}: {
   const isError = msg.status === MessageStatus.Error;
   const isBot = msg.sender === Sender.Bot;
   const bg = isError ? "red.500" : (isSelf ? "blue.500" : "gray.50");
-  const textColor = isError ? "white": (isSelf ? "white" : "gray.500");
+  const textColor = isError ? "white": (isSelf ? "white" : "gray.600");
   const justify = isSelf ? "flex-end" : "flex-start";
   let bubbleStyle = {
     display: "inline-block",
