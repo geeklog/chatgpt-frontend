@@ -6,6 +6,7 @@ import { RepeatIcon } from '@chakra-ui/icons';
 import { uuid2number } from './utils/hashing';
 import './Avatar.css'
 import MarkdownPreview from './components/MarkdownPreview';
+import Lines from './components/Lines';
 
 function ReloadButton(props: any) {
   return <RepeatIcon {...props} />
@@ -54,7 +55,7 @@ function MessageBubble({msg, handleReloadMessage}: {
               ? <>{msg.msg} <ReloadButton/></>
               : msg.sender === Sender.Bot && msg.status == MessageStatus.Normal
                 ? <MarkdownPreview markdown={msg.msg}/>
-                : <div>{msg.msg}</div>
+                : <Lines>{msg.msg}</Lines>
         }
       </Box>
     </Box>

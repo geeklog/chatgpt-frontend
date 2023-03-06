@@ -4,8 +4,8 @@ function SendButton(props: any) {
       onClick={props.onClick}
       fill="currentColor"
       viewBox="0 0 24 24"
-      height="48px"
-      width="48px"
+      height="2rem"
+      width="2rem"
       display="inline-block"
       {...props}
     >

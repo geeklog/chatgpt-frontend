@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Box, VStack, Tooltip } from "@chakra-ui/react";
-import { Input, InputGroup, InputRightElement } from "@chakra-ui/react";
+import { useState } from 'react';
+import { Box, VStack, InputGroup, Flex } from "@chakra-ui/react";
 import { v4 as uuidv4 } from 'uuid';
 import './ChatWindow.css'
 import useMemoryStorage from './hooks/useMemoryStorage';
@@ -12,6 +11,7 @@ import { getLastestUserQuery, replaceBotErrorBubbleWithPending, replaceBotPendin
 import useScrollToBottom from "./hooks/useScrollToBottom";
 import texts from './states/texts';
 import { randomChoose } from './utils/array';
+import ChatTextarea from './ChatTextarea';
 
 function ChatWindow({userId}: {userId: string}) {
   const [sessionID] = useMemoryStorage('chat-session-id', uuidv4());
@@ -24,7 +24,8 @@ function ChatWindow({userId}: {userId: string}) {
       sessionID
     }
   ]);
-  const [typing, setTyping] = useState('');
+  const nLineHook = useState(1);
+  const [nLine] = nLineHook;
   const [messagesRef, scrollToBottom] = useScrollToBottom();
 
   // useEffect(() => {
@@ -77,8 +78,12 @@ function ChatWindow({userId}: {userId: string}) {
       );
     }
   }
+
+  const handleLineHeightChange = async (numLines: number) => {
+    numLines++;
+  }
   
-  const handleSendMessage = async () => {
+  const handleSendMessage = async (typing: string) => {
     const prompt = typing.trim();
     if (!prompt) {
       return;
@@ -92,7 +97,6 @@ function ChatWindow({userId}: {userId: string}) {
       {sender: Sender.Bot, msg: '...', status: MessageStatus.Pending, pair, sessionID},
     ];
     
-    setTyping('');
     setMessages(messagesWithPending);
     scrollToBottom();
 
@@ -111,12 +115,16 @@ function ChatWindow({userId}: {userId: string}) {
     }
   };
 
+  const lh = 1.5;
+  const hChatTextfield = `calc(${lh}em * ${nLine} + 1em)`;
+  const hChatInput = `calc(${lh*1.12}em * ${nLine} + 2.2em)`
+  const hMessages = `calc(100vh - (${lh*1.12}em * ${nLine} + 2.2em))`;
+
   return (
-    <Box h="100%" w="100%" maxW="800px" bg="gray.100" style={{position: 'relative'}}>
+    <Box h="100%" w="100%" maxW="800px" bg="gray.100" overflow="hidden" pos="relative">
       <VStack
         ref={messagesRef}
-        h="100%"
-        maxH="calc(100% - 3rem)"
+        h={hMessages}
         overflowY="auto"
         overflowX="hidden"
         spacing='5'
@@ -133,23 +141,24 @@ function ChatWindow({userId}: {userId: string}) {
           )
         }
       </VStack>
-      <InputGroup pl={2} pr={2}>
-        <Input
+      <InputGroup background="white" h={hChatInput} w="100%">
+        {<ChatTextarea
           size="lg"
-          type="text"
           placeholder="你想聊点什么..."
-          value={typing}
-          onChange={(e) => setTyping(e.target.value)}
-          onKeyUp={(e) => {
-            if (e.key === "Enter") handleSendMessage();
-          }}
-        />
-        <InputRightElement
-          h="100%"
-          pr={2}
-          color="blue.500"
-          children={<SendButton onClick={handleSendMessage} />}
-        />
+          m={2}
+          p={2}
+          lineHeight={lh}
+          h={hChatTextfield}
+          minH={hChatTextfield}
+          resize="none"
+          nLineHook={nLineHook}
+          onLineHeightChange={handleLineHeightChange}
+          onSubmit={handleSendMessage}
+          wordBreak="break-all"
+        />}
+        <Flex pr={2} pb={4} color="blue.500" direction="column-reverse">
+          <SendButton onClick={handleSendMessage} />
+        </Flex>
       </InputGroup>
     </Box>
   );
