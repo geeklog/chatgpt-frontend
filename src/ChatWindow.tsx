@@ -25,7 +25,8 @@ function ChatWindow({userId}: {userId: string}) {
       pair: '0',
       sender: Sender.Bot,
       status: MessageStatus.Normal,
-      sessionID
+      sessionID,
+      time: new Date()
     }
   ]);
   const typingHook = useState("");
@@ -45,7 +46,14 @@ function ChatWindow({userId}: {userId: string}) {
 
     const messagesWithPending: Message[] = [
       ...messages,
-      {sender: Sender.Bot, media: MessageMedia.Text, msg: '...', status: MessageStatus.Pending, pair, sessionID},
+      {
+        sender: Sender.Bot,
+        media: MessageMedia.Text,
+        msg: '...',
+        status: MessageStatus.Pending,
+        pair, sessionID,
+        time: new Date()
+      },
     ];
 
     setMessages(messagesWithPending);
@@ -97,8 +105,24 @@ function ChatWindow({userId}: {userId: string}) {
 
     const messagesWithPending: Message[] = [
       ...messages,
-      {sender: Sender.User, media: MessageMedia.Text, msg: prompt, status: MessageStatus.Normal, pair, sessionID},
-      {sender: Sender.Bot, media: MessageMedia.Text, msg: '...', status: MessageStatus.Pending, pair, sessionID},
+      {
+        sender: Sender.User,
+        media: MessageMedia.Text,
+        msg: prompt,
+        status: MessageStatus.Normal,
+        pair,
+        sessionID,
+        time: new Date()
+      },
+      {
+        sender: Sender.Bot,
+        media: MessageMedia.Text,
+        msg: '...',
+        status: MessageStatus.Pending,
+        pair,
+        sessionID,
+        time: new Date()
+      }
     ];
     
     setMessages(messagesWithPending);

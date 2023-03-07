@@ -10,7 +10,15 @@ export const replaceBotPendingBubbleWithAnswer = (
       newMsgs.push(msg);
       continue;
     }
-    newMsgs.push({sender: Sender.Bot, msg: answer, media, status: MessageStatus.Normal, pair, sessionID});
+    newMsgs.push({
+      sender: Sender.Bot,
+      msg: answer,
+      media,
+      status: MessageStatus.Normal,
+      pair,
+      sessionID,
+      time: new Date()
+    });
   }
   return newMsgs;
 }
@@ -25,7 +33,15 @@ export const replaceBotPendingBubbleWithError = (
       newMsgs.push(msg);
       continue;
     }
-    newMsgs.push({sender: Sender.Bot, media: MessageMedia.Text, msg: errorMessage, status: MessageStatus.Error, pair, sessionID});
+    newMsgs.push({
+      sender: Sender.Bot,
+      media: MessageMedia.Text,
+      msg: errorMessage,
+      status: MessageStatus.Error,
+      pair,
+      sessionID,
+      time: new Date()
+    });
   }
   return newMsgs;
 }
@@ -40,7 +56,15 @@ export const replaceBotErrorBubbleWithPending = (
       newMsgs.push(msg);
       continue;
     }
-    newMsgs.push({sender: Sender.Bot, media: MessageMedia.Text, msg: '...', status: MessageStatus.Pending, pair, sessionID});
+    newMsgs.push({
+      sender: Sender.Bot,
+      media: MessageMedia.Text,
+      msg: '...',
+      status: MessageStatus.Pending,
+      pair,
+      sessionID,
+      time: new Date()
+    });
   }
   return newMsgs;
 }

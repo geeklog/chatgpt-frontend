@@ -1,0 +1,7 @@
+.md-preview > p.chakra-text {
+  margin-bottom: 0;
+}
+
+.md-preview > p.chakra-text > img {
+  border-radius: 1rem;
+}

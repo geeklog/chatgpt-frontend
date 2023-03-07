@@ -1,4 +1,4 @@
-import { Avatar, Box } from '@chakra-ui/react';
+import { Avatar, Box, Text } from '@chakra-ui/react';
 import Loading from './components/Loading';
 import { Message, MessageStatus, Sender } from './types';
 import './MessageBubble.css'
@@ -7,9 +7,18 @@ import { uuid2number } from './utils/hashing';
 import './Avatar.css'
 import MarkdownPreview from './components/MarkdownPreview';
 import Lines from './components/Lines';
+import { getRelativeTime } from './utils/date';
 
 function ReloadButton(props: any) {
   return <RepeatIcon {...props} />
+}
+
+function DateLabel(props: any) {
+  return (
+    <Text fontSize="xs" color="gray.400" whiteSpace="nowrap" {...props}>
+      {getRelativeTime(props.date)}
+    </Text>
+  )
 }
 
 function MessageBubble({msg, handleReloadMessage}: {
@@ -25,7 +34,7 @@ function MessageBubble({msg, handleReloadMessage}: {
   let bubbleStyle = {
     display: "inline-block",
     maxWidth: isSelf ? "70%": "calc(100%-7rem)",
-    padding: "0.5rem 1rem",
+    padding: "0.8rem 1rem",
     borderRadius: "1rem",
     backgroundColor: "gray.300",
     cursor: ''
@@ -37,18 +46,21 @@ function MessageBubble({msg, handleReloadMessage}: {
   return (
     <Box w="100%" display="flex" justifyContent={justify} position="relative" >
       {isBot &&
-        <Avatar mt={1} mr={2} src={`/avatars/bot${1+uuid2number(msg.sessionID)%8}.webp`} objectPosition="top" />
+        <Avatar mr={2} src={`/avatars/bot${1+uuid2number(msg.sessionID)%8}.webp`} objectPosition="top" />
       }
       <Box
         backgroundColor={bg}
         color={textColor}
         style={bubbleStyle}
+        mt={5}
+        pos="relative"
         onClick={() => {
           if (isError) {
             handleReloadMessage(msg.pair)
           }
         }}
       >
+        <DateLabel date={msg.time} pos="absolute" top={-6} {...(isSelf ? {right: 3}: {left: 3})}/>
         { msg.status === MessageStatus.Pending
             ? <Loading style={{height: '24px'}}/>
             : isError

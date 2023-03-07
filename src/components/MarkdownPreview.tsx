@@ -2,6 +2,7 @@ import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
 import ReactMarkdown from 'react-markdown'
 import { Box } from '@chakra-ui/react';
 import CopyButton from './CopyButton';
+import './MarkdownPreview.css';
 
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter'
 import tsx from 'react-syntax-highlighter/dist/cjs/languages/prism/tsx'

@@ -15,6 +15,7 @@ specifiers:
   '@types/react-syntax-highlighter': ^15.5.6
   '@types/uuid': ^9.0.1
   chakra-ui-markdown-renderer: ^4.1.0
+  dayjs: ^1.11.7
   framer-motion: ^10.0.1
   react: ^18.2.0
   react-dom: ^18.2.0
@@ -39,6 +40,7 @@ dependencies:
   '@types/react-dom': 18.0.11
   '@types/react-syntax-highlighter': 15.5.6
   chakra-ui-markdown-renderer: 4.1.0_wzvy5ffs6hyrh3ixfhen2bm7na
+  dayjs: 1.11.7
   framer-motion: 10.0.1_biqbaboplfbrettd7655fr4n2y
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
@@ -5312,6 +5314,10 @@ packages:
       abab: 2.0.6
       whatwg-mimetype: 2.3.0
       whatwg-url: 8.7.0
+    dev: false
+
+  /dayjs/1.11.7:
+    resolution: {integrity: sha512-+Yw9U6YO5TQohxLcIkrXBeY73WP3ejHWVvx8XCk3gxvQDCTEmS48ZrSZCKciI7Bhl/uCMyxYtE9UqRILmFphkQ==}
     dev: false
 
   /debug/2.6.9:

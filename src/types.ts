@@ -18,6 +18,7 @@ export interface Message {
   sender: Sender;
   media: MessageMedia;
   msg: string;
+  time: Date;
   status: MessageStatus,
   pair: string; // 用来标记移除Pending
   sessionID: string;
