@@ -12,9 +12,12 @@ import useScrollToBottom from "./hooks/useScrollToBottom";
 import texts from './states/texts';
 import { randomChoose } from './utils/array';
 import ChatTextarea from './ChatTextarea';
+import useDeviceDetection from './hooks/useDeviceDetection';
 
 function ChatWindow({userId}: {userId: string}) {
+  const {isMobile} = useDeviceDetection();
   const [sessionID] = useMemoryStorage('chat-session-id', uuidv4());
+  
   const [messages, setMessages] = useState<Message[]>([
     {
       msg: '欢迎使用ChatGPT',
@@ -24,6 +27,8 @@ function ChatWindow({userId}: {userId: string}) {
       sessionID
     }
   ]);
+  const typingHook = useState("");
+  const [typing, setTyping] = typingHook;
   const nLineHook = useState(1);
   const [nLine] = nLineHook;
   const [messagesRef, scrollToBottom] = useScrollToBottom();
@@ -78,16 +83,14 @@ function ChatWindow({userId}: {userId: string}) {
       );
     }
   }
-
-  const handleLineHeightChange = async (numLines: number) => {
-    numLines++;
-  }
   
-  const handleSendMessage = async (typing: string) => {
+  const handleSendMessage = async () => {
     const prompt = typing.trim();
     if (!prompt) {
       return;
     }
+
+    setTyping('');
 
     const pair = uuidv4();
 
@@ -144,20 +147,20 @@ function ChatWindow({userId}: {userId: string}) {
       <InputGroup background="white" h={hChatInput} w="100%">
         {<ChatTextarea
           size="lg"
-          placeholder="你想聊点什么..."
+          placeholder={isMobile ? "你想聊点什么..." : "Shift + Enter 换行"}
           m={2}
           p={2}
           lineHeight={lh}
           h={hChatTextfield}
           minH={hChatTextfield}
           resize="none"
+          typingHook={typingHook}
           nLineHook={nLineHook}
-          onLineHeightChange={handleLineHeightChange}
           onSubmit={handleSendMessage}
           wordBreak="break-all"
         />}
         <Flex pr={2} pb={4} color="blue.500" direction="column-reverse">
-          <SendButton onClick={handleSendMessage} />
+          <SendButton onClick={handleSendMessage} cursor="pointer" />
         </Flex>
       </InputGroup>
     </Box>

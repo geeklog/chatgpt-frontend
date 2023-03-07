@@ -1,9 +1,15 @@
 import { useState } from "react";
 import { Textarea } from "@chakra-ui/react";
+import useDeviceDetection from "./hooks/useDeviceDetection";
 
 function ChatTextarea(props: any) {
-  const [nLines, setNLines] = props.nLineHook;
-  const [value, setValue] = useState("");
+  const {
+    typingHook: [value, setValue],
+    nLineHook: [nLines, setNLines],
+    ...restProps
+  } = props;
+
+  const {isMobile} = useDeviceDetection();
 
   const handleKeyDown = (event: any) => {
     if (event.shiftKey && event.key === "Enter") {
@@ -17,7 +23,7 @@ function ChatTextarea(props: any) {
       event.target.setSelectionRange(cursorPosition + 1, cursorPosition + 1);
       return;
     }
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' && !isMobile) {
       event.preventDefault();
       props.onSubmit?.(value);
       setValue('');
@@ -36,7 +42,7 @@ function ChatTextarea(props: any) {
       value={value}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
-      {...props}
+      {...restProps}
     />
   );
 }
