@@ -10,7 +10,10 @@ export async function chat(message: string, sessionID: string) {
   if (response.status === 200) {
     const data = await response.json();
     if (data.status === 'ok') {
-      return data.answer.trim();
+      return {
+        media: data.media,
+        answer: data.answer.trim()
+      }
     } else {
       throw new Error(`${data.answer}`);
     }

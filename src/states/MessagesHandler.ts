@@ -1,7 +1,7 @@
-import { Message, MessageStatus, Sender } from "../types";
+import { Message, MessageMedia, MessageStatus, Sender } from "../types";
 
 export const replaceBotPendingBubbleWithAnswer = (
-  {messages, pair, answer, sessionID}: {messages: Message[], pair: string, answer: string, sessionID: string}
+  {messages, pair, media, answer, sessionID}: {messages: Message[], pair: string, media: MessageMedia, answer: string, sessionID: string}
 ): Message[] => {
   const newMsgs = [];
   for (let i=0; i<messages.length; i++) {
@@ -10,7 +10,7 @@ export const replaceBotPendingBubbleWithAnswer = (
       newMsgs.push(msg);
       continue;
     }
-    newMsgs.push({sender: Sender.Bot, msg: answer, status: MessageStatus.Normal, pair, sessionID});
+    newMsgs.push({sender: Sender.Bot, msg: answer, media, status: MessageStatus.Normal, pair, sessionID});
   }
   return newMsgs;
 }
@@ -25,7 +25,7 @@ export const replaceBotPendingBubbleWithError = (
       newMsgs.push(msg);
       continue;
     }
-    newMsgs.push({sender: Sender.Bot, msg: errorMessage, status: MessageStatus.Error, pair, sessionID});
+    newMsgs.push({sender: Sender.Bot, media: MessageMedia.Text, msg: errorMessage, status: MessageStatus.Error, pair, sessionID});
   }
   return newMsgs;
 }
@@ -40,7 +40,7 @@ export const replaceBotErrorBubbleWithPending = (
       newMsgs.push(msg);
       continue;
     }
-    newMsgs.push({sender: Sender.Bot, msg: '...', status: MessageStatus.Pending, pair, sessionID});
+    newMsgs.push({sender: Sender.Bot, media: MessageMedia.Text, msg: '...', status: MessageStatus.Pending, pair, sessionID});
   }
   return newMsgs;
 }

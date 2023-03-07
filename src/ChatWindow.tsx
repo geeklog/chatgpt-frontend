@@ -5,7 +5,7 @@ import './ChatWindow.css'
 import useMemoryStorage from './hooks/useMemoryStorage';
 import * as api from './api/api';
 import SendButton from "./components/icons/SendButton";
-import { Message, MessageStatus, Sender } from './types';
+import { Message, MessageMedia, MessageStatus, Sender } from './types';
 import MessageBubble from "./MessageBubble";
 import { getLastestUserQuery, replaceBotErrorBubbleWithPending, replaceBotPendingBubbleWithAnswer, replaceBotPendingBubbleWithError } from "./states/MessagesHandler";
 import useScrollToBottom from "./hooks/useScrollToBottom";
@@ -21,6 +21,7 @@ function ChatWindow({userId}: {userId: string}) {
   const [messages, setMessages] = useState<Message[]>([
     {
       msg: '欢迎使用ChatGPT',
+      media: MessageMedia.Text,
       pair: '0',
       sender: Sender.Bot,
       status: MessageStatus.Normal,
@@ -42,18 +43,18 @@ function ChatWindow({userId}: {userId: string}) {
 
     const pair = uuidv4();
 
-    const messagesWithPending = [
+    const messagesWithPending: Message[] = [
       ...messages,
-      {sender: Sender.Bot, msg: '...', status: MessageStatus.Pending, pair, sessionID},
+      {sender: Sender.Bot, media: MessageMedia.Text, msg: '...', status: MessageStatus.Pending, pair, sessionID},
     ];
 
     setMessages(messagesWithPending);
     scrollToBottom();
 
     try {
-      const answer = await api.chat(prompt, sessionID);
+      const {media, answer} = await api.chat(prompt, sessionID);
       setMessages(
-        replaceBotPendingBubbleWithAnswer({messages: messagesWithPending, pair, answer, sessionID})
+        replaceBotPendingBubbleWithAnswer({messages: messagesWithPending, pair, media, answer, sessionID})
       );
       scrollToBottom();
     } catch (error: any) {
@@ -74,8 +75,8 @@ function ChatWindow({userId}: {userId: string}) {
     let msgsWithPending = replaceBotErrorBubbleWithPending({messages, pair, sessionID});
     try {
       setMessages(msgsWithPending);
-      const answer = await api.chat(prevQuery, sessionID);
-      let msgsWithLatestAnswer = replaceBotPendingBubbleWithAnswer({messages: msgsWithPending, pair, answer, sessionID});
+      const {media, answer} = await api.chat(prevQuery, sessionID);
+      let msgsWithLatestAnswer = replaceBotPendingBubbleWithAnswer({messages: msgsWithPending, pair, media, answer, sessionID});
       setMessages(msgsWithLatestAnswer);
     } catch (error: any) {
       setMessages(
@@ -94,19 +95,19 @@ function ChatWindow({userId}: {userId: string}) {
 
     const pair = uuidv4();
 
-    const messagesWithPending = [
+    const messagesWithPending: Message[] = [
       ...messages,
-      {sender: Sender.User, msg: prompt, status: MessageStatus.Normal, pair, sessionID},
-      {sender: Sender.Bot, msg: '...', status: MessageStatus.Pending, pair, sessionID},
+      {sender: Sender.User, media: MessageMedia.Text, msg: prompt, status: MessageStatus.Normal, pair, sessionID},
+      {sender: Sender.Bot, media: MessageMedia.Text, msg: '...', status: MessageStatus.Pending, pair, sessionID},
     ];
     
     setMessages(messagesWithPending);
     scrollToBottom();
 
     try {
-      const answer = await api.chat(typing, sessionID);
+      const {media, answer} = await api.chat(typing, sessionID);
       setMessages(
-        replaceBotPendingBubbleWithAnswer({messages: messagesWithPending, pair, answer, sessionID})
+        replaceBotPendingBubbleWithAnswer({messages: messagesWithPending, pair, media, answer, sessionID})
       );
       scrollToBottom();
     } catch (error: any) {
