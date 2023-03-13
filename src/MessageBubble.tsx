@@ -1,4 +1,4 @@
-import { Avatar, Box, Text } from '@chakra-ui/react';
+import { Avatar, Box } from '@chakra-ui/react';
 import Loading from './components/Loading';
 import { Message, MessageStatus, Sender } from './types';
 import './MessageBubble.css'
@@ -7,18 +7,10 @@ import { uuid2number } from './utils/hashing';
 import './Avatar.css'
 import MarkdownPreview from './components/MarkdownPreview';
 import Lines from './components/Lines';
-import { getRelativeTime } from './utils/date';
+import DateLabel from './DateLabel';
 
 function ReloadButton(props: any) {
   return <RepeatIcon {...props} />
-}
-
-function DateLabel(props: any) {
-  return (
-    <Text fontSize="xs" color="gray.400" whiteSpace="nowrap" {...props}>
-      {getRelativeTime(props.date)}
-    </Text>
-  )
 }
 
 function MessageBubble({msg, handleReloadMessage}: {
