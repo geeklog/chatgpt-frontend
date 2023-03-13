@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Box, VStack, InputGroup, Flex } from "@chakra-ui/react";
+import { useState, useEffect } from 'react';
+import { Box, VStack, InputGroup, Flex, Button } from "@chakra-ui/react";
 import { v4 as uuidv4 } from 'uuid';
 import './ChatWindow.css'
 import useMemoryStorage from './hooks/useMemoryStorage';
@@ -13,10 +13,24 @@ import texts from './states/texts';
 import { randomChoose } from './utils/array';
 import ChatTextarea from './ChatTextarea';
 import useDeviceDetection from './hooks/useDeviceDetection';
+import { CheckIcon, ExternalLinkIcon } from '@chakra-ui/icons';
+import FadedButton from './components/FadedButton';
+import { b64DecodeUnicode, b64EncodeUnicode } from './utils/hashing';
 
 function ChatWindow({userId}: {userId: string}) {
   const {isMobile} = useDeviceDetection();
-  const [sessionID] = useMemoryStorage('chat-session-id', uuidv4());
+  const [sessionID, setSessionID] = useMemoryStorage('chat-session-id', uuidv4());
+
+  useEffect(() => {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const conversation = urlParams.get('conversation');
+    if (!conversation)
+      return;
+    const {msg, sessionID} = JSON.parse(b64DecodeUnicode(decodeURIComponent(conversation)));
+    setMessages(msg);
+    setSessionID(sessionID);
+  }, []);
   
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -143,13 +157,30 @@ function ChatWindow({userId}: {userId: string}) {
     }
   };
 
+  const onShare = () => {
+    navigator.clipboard.writeText(
+      window.location + `?conversation=${
+        encodeURIComponent(b64EncodeUnicode(JSON.stringify({
+          msg: messages,
+          sessionID
+        })))
+      }`
+    );
+  }
+
   const lh = 1.5;
   const hChatTextfield = `calc(${lh}em * ${nLine} + 1em)`;
   const hChatInput = `calc(${lh*1.12}em * ${nLine} + 2.2em)`
   const hMessages = `calc(100vh - (${lh*1.12}em * ${nLine} + 2.2em))`;
 
   return (
-    <Box h="100%" w="100%" maxW="800px" bg="gray.100" overflow="hidden" pos="relative">
+    <Box h="100%" w="100%" maxW="800px" bg="gray.100" pos="relative">
+      <FadedButton size="sm" pos="absolute" top="1em" right="-1em" title="复制分享链接"
+        on={<CheckIcon />}
+        off={<ExternalLinkIcon />}
+        delay={1000}
+        onClick={onShare}
+      />
       <VStack
         ref={messagesRef}
         h={hMessages}

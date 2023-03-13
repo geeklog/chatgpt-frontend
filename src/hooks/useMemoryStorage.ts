@@ -18,7 +18,13 @@ function useMemoryStorage<T>(key: string, initialValue: T) {
     window.__memoryPersistStorage[key] = JSON.stringify(state);
   }, [key, state]);
   
-  return [state, setState];
+  return [
+    state,
+    (newState: T) => {
+      setState(newState);
+      window.__memoryPersistStorage[key] = newState;
+    }
+  ];
 }
 
 export default useMemoryStorage
