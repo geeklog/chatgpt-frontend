@@ -1,13 +1,12 @@
-import { Avatar, Box } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import Loading from './components/Loading';
 import { Message, MessageStatus, Sender } from './types';
 import './MessageBubble.css'
 import { RepeatIcon } from '@chakra-ui/icons';
-import { uuid2number } from './utils/hashing';
-import './Avatar.css'
 import MarkdownPreview from './components/MarkdownPreview';
 import Lines from './components/Lines';
 import DateLabel from './DateLabel';
+import ChatAvatar from './ChatAvatar';
 
 function ReloadButton(props: any) {
   return <RepeatIcon {...props} />
@@ -38,7 +37,7 @@ function MessageBubble({msg, handleReloadMessage}: {
   return (
     <Box w="100%" display="flex" justifyContent={justify} position="relative" >
       {isBot &&
-        <Avatar mr={2} src={`/avatars/bot${1+uuid2number(msg.sessionID)%8}.webp`} objectPosition="top" />
+        <ChatAvatar id={msg.sessionID}/>
       }
       <Box
         backgroundColor={bg}

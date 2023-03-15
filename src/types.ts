@@ -23,3 +23,9 @@ export interface Message {
   pair: string; // 用来标记移除Pending
   sessionID: string;
 }
+
+export interface Session {
+  id: string;
+  title: string;
+  history: Message[];
+}

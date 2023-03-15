@@ -1,72 +1,63 @@
 import { Message, MessageMedia, MessageStatus, Sender } from "../types";
 
+export const userMessage = (msg: string, pair: string, sessionID: string) => ({
+  sender: Sender.User,
+  media: MessageMedia.Text,
+  msg,
+  status: MessageStatus.Normal,
+  pair,
+  sessionID,
+  time: new Date()
+});
+
+export const botPending = (pair: string, sessionID: string) => ({
+  sender: Sender.Bot,
+  media: MessageMedia.Text,
+  msg: '...',
+  status: MessageStatus.Pending,
+  pair,
+  sessionID,
+  time: new Date()
+})
+
 export const replaceBotPendingBubbleWithAnswer = (
   {messages, pair, media, answer, sessionID}: {messages: Message[], pair: string, media: MessageMedia, answer: string, sessionID: string}
 ): Message[] => {
-  const newMsgs = [];
-  for (let i=0; i<messages.length; i++) {
-    const msg = messages[i];
-    if (!(msg.pair === pair && msg.sender === Sender.Bot && msg.status === MessageStatus.Pending)) {
-      newMsgs.push(msg);
-      continue;
-    }
-    newMsgs.push({
-      sender: Sender.Bot,
-      msg: answer,
-      media,
-      status: MessageStatus.Normal,
-      pair,
-      sessionID,
-      time: new Date()
-    });
+  const pending = messages.find(msg =>
+    msg.pair === pair && msg.sender === Sender.Bot && msg.status === MessageStatus.Pending
+  );
+  if (pending) {
+    pending.status = MessageStatus.Normal;
+    pending.msg = answer;
   }
-  return newMsgs;
+  return [...messages];
 }
 
 export const replaceBotPendingBubbleWithError = (
   {messages, pair, errorMessage, sessionID}: {messages: Message[], pair: string, errorMessage: string, sessionID: string}
 ): Message[] => {
-  const newMsgs = [];
-  for (let i=0; i<messages.length; i++) {
-    const msg = messages[i];
-    if (!(msg.pair === pair && msg.sender === Sender.Bot && msg.status === MessageStatus.Pending)) {
-      newMsgs.push(msg);
-      continue;
-    }
-    newMsgs.push({
-      sender: Sender.Bot,
-      media: MessageMedia.Text,
-      msg: errorMessage,
-      status: MessageStatus.Error,
-      pair,
-      sessionID,
-      time: new Date()
-    });
+  const pending = messages.find(msg =>
+    msg.pair === pair && msg.sender === Sender.Bot && msg.status === MessageStatus.Pending
+  );
+  if (pending) {
+    pending.status = MessageStatus.Error;
+    pending.msg = errorMessage;
   }
-  return newMsgs;
+  return [...messages];
 }
 
 export const replaceBotErrorBubbleWithPending = (
   {messages, pair, sessionID}: {messages: Message[], pair: string, sessionID: string}
 ): Message[] => {
-  const newMsgs = [];
-  for (let i=0; i<messages.length; i++) {
-    const msg = messages[i];
-    if (!(msg.pair === pair && msg.sender === Sender.Bot && msg.status === MessageStatus.Error)) {
-      newMsgs.push(msg);
-      continue;
-    }
-    newMsgs.push({
-      sender: Sender.Bot,
-      media: MessageMedia.Text,
-      msg: '...',
-      status: MessageStatus.Pending,
-      pair,
-      sessionID,
-      time: new Date()
-    });
+  const pending = messages.find(msg =>
+    msg.pair === pair && msg.sender === Sender.Bot && msg.status === MessageStatus.Error
+  );
+  if (pending) {
+    pending.status = MessageStatus.Pending;
+    pending.msg = '...';
+    pending.time = new Date();
   }
-  return newMsgs;
+  return [...messages];
 }
 
 export const getLastestUserQuery = (messages: Message[], pair: string) => {
