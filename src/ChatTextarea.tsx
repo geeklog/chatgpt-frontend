@@ -1,31 +1,41 @@
-import { useState } from "react";
-import { Textarea } from "@chakra-ui/react";
+import { Textarea, TextareaProps } from "@chakra-ui/react";
 import useDeviceDetection from "./hooks/useDeviceDetection";
 
-function ChatTextarea(props: any) {
+type SendMessageHandler = (startNewSession: boolean) => Promise<void>;
+
+function ChatTextarea(props: TextareaProps & {typingHook: any, nLineHook: any, onSendMessage: SendMessageHandler}) {
   const {
     typingHook: [value, setValue],
     nLineHook: [nLines, setNLines],
+    onSendMessage,
     ...restProps
   } = props;
 
   const {isMobile} = useDeviceDetection();
 
-  const handleKeyDown = (event: any) => {
+  const handleKeyDown = (event: KeyboardEvent) => {
+    const target = event.target as HTMLInputElement;
+
     if (event.shiftKey && event.key === "Enter") {
       event.preventDefault();
-
-      const cursorPosition = event.target.selectionStart;
-      const text = event.target.value;
+      const cursorPosition = target.selectionStart!;
+      const text = target.value;
       const newValue = text.substring(0, cursorPosition) + "\n" + text.substring(cursorPosition);
       setValue(newValue);
       setNLines(newValue.split('\n').length);
-      event.target.setSelectionRange(cursorPosition + 1, cursorPosition + 1);
+      target.setSelectionRange(cursorPosition + 1, cursorPosition + 1);
+      return;
+    }
+    if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+      event.preventDefault();
+      onSendMessage(true);
+      setValue('');
+      setNLines(1);
       return;
     }
     if (event.key === 'Enter' && !isMobile) {
       event.preventDefault();
-      props.onSubmit?.(value);
+      onSendMessage(false);
       setValue('');
       setNLines(1);
       return;
@@ -41,7 +51,7 @@ function ChatTextarea(props: any) {
     <Textarea
       value={value}
       onChange={handleChange}
-      onKeyDown={handleKeyDown}
+      onKeyDown={handleKeyDown as any}
       {...restProps}
     />
   );
