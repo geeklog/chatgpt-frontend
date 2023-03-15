@@ -7,7 +7,8 @@ const theme = extendTheme({
   styles: {
     global: (props: any) => ({
       body: {
-        bgColor: '#3182ce'
+        bg: 'linear-gradient(-45deg, #700161, #9b67b5, #23a6d5, #23d5ab)',
+        bgSize: '400% 400%'
       }
     })
   },
