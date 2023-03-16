@@ -144,11 +144,11 @@ function ChatWindow({userId}: {userId: string}) {
     scrollToBottom();
 
     try {
-      const {media, answer, pair: resPair} = await api.chat(typing, sessionID, pair);
+      const {media, answer} = await api.chat(typing, sessionID, pair);
       setMessages(
         replaceBotPendingBubbleWithAnswer({
           messages: getMessages(),
-          pair: resPair,
+          pair,
           media,
           answer,
           sessionID
