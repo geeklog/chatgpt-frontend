@@ -20,7 +20,6 @@ import useLocale from './hooks/useLocale';
 import useEffectOnce from './hooks/useEffectOnce';
 import useSignal from './hooks/useSignal';
 import { chunks, interlace } from './utils/array';
-import _ from 'lodash';
 
 function ChatWindow({userId}: {userId: string}) {
   const showInitialPrompt = false;
