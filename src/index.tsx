@@ -1,12 +1,18 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-// import reportWebVitals from './reportWebVitals';
+import { inject } from '@vercel/analytics';
+import { SettingsProvider } from './contexts/Settings';
+
+if (process.env.NODE_ENV === 'production') {
+  inject();
+}
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <App />
+  <SettingsProvider>
+    <App />
+  </SettingsProvider>
 );

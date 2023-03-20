@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, VStack, InputGroup, Flex, Divider } from "@chakra-ui/react";
+import { Box, VStack, InputGroup, Flex, Divider, useDisclosure, Button } from "@chakra-ui/react";
 import { v4 as uuidv4 } from 'uuid';
 import './ChatWindow.css'
 import useMemoryStorage from './hooks/useMemoryStorage';
@@ -189,7 +189,7 @@ function ChatWindow({userId}: {userId: string}) {
     <Box h="100%" w="100%" maxW="800px" bg="gray.100" pos="relative"
       overflow="hidden"
     >
-      <FadedButton size="sm" pos="absolute" top="1em" right="0.5em" title="复制分享链接"
+      <FadedButton size="sm" pos="absolute" top="0.5em" right="1em" zIndex="100" title="复制分享链接"
         on={<CheckIcon />}
         off={<ExternalLinkIcon />}
         delay={1000}
