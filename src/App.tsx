@@ -2,6 +2,7 @@ import {Flex} from '@chakra-ui/react';
 import { extendTheme, ChakraBaseProvider } from '@chakra-ui/react'
 import ChatWindow from './ChatWindow';
 import SessionNavbar from './SessionNavbar';
+import SettingPage from './SettingsPage';
 
 const theme = extendTheme({
   styles: {
@@ -21,6 +22,7 @@ function App() {
         {/* <SessionNavbar /> */}
         <ChatWindow userId="1" />
       </Flex>
+      <SettingPage />
     </ChakraBaseProvider>
   )
 }
