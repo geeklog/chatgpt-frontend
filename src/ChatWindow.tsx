@@ -5,9 +5,9 @@ import './ChatWindow.css'
 import useMemoryStorage from './hooks/useMemoryStorage';
 import * as api from './api/api';
 import SendButton from "./components/icons/SendButton";
-import { Message } from './types';
+import { Message, MessageMedia } from './types';
 import MessageBubble from "./MessageBubble";
-import { botPending, getLastestUserQuery, replaceBotErrorBubbleWithPending, replaceBotPendingBubbleWithAnswer, replaceBotPendingBubbleWithError, userMessage } from "./states/MessagesHandler";
+import { botPending, getLastestUserQuery, removePendingMessages, replaceBotErrorBubbleWithPending, replaceBotPendingBubbleWithAnswer, replaceBotPendingBubbleWithError, streamingAnswer, userMessage } from "./states/MessagesHandler";
 import useScrollToBottom from "./hooks/useScrollToBottom";
 import {texts} from './states/texts';
 import ChatTextarea from './ChatTextarea';
@@ -144,17 +144,18 @@ function ChatWindow({userId}: {userId: string}) {
     scrollToBottom();
 
     try {
-      const {media, answer} = await api.chat(typing, sessionID, pair);
-      setMessages(
-        replaceBotPendingBubbleWithAnswer({
-          messages: getMessages(),
-          pair,
-          media,
-          answer,
-          sessionID
-        })
-      );
-      scrollToBottom();
+      api.chatStream(sessionID, pair, removePendingMessages(getMessages()), (text) => {
+        setMessages(
+          streamingAnswer({
+            messages: getMessages(),
+            pair,
+            media: MessageMedia.Text,
+            answer: text,
+            sessionID
+          })
+        );
+        scrollToBottom();
+      });
     } catch (error: any) {
       setMessages(
         replaceBotPendingBubbleWithError({

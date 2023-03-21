@@ -1,4 +1,4 @@
-import { Message, MessageMedia, MessageStatus, Sender } from "../types";
+import { Message, MessageMedia, MessageStatus, Sender } from '../types';
 
 export const userMessage = (msg: string, pair: string, sessionID: string) => ({
   sender: Sender.User,
@@ -56,6 +56,23 @@ export const replaceBotErrorBubbleWithPending = (
     pending.status = MessageStatus.Pending;
     pending.msg = '...';
     pending.time = new Date();
+  }
+  return [...messages];
+}
+
+export const removePendingMessages = (messages: Message[]) => {
+  return messages.filter(m => m.status != MessageStatus.Pending);
+}
+
+export const streamingAnswer = (
+  {messages, pair, media, answer, sessionID}: {messages: Message[], pair: string, media: MessageMedia, answer: string, sessionID: string}
+): Message[] => {
+  const streaming = messages.find(msg =>
+    msg.pair === pair && msg.sender === Sender.Bot
+  );
+  if (streaming) {
+    streaming.status = MessageStatus.Normal;
+    streaming.msg = answer;
   }
   return [...messages];
 }
