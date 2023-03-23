@@ -4,6 +4,12 @@ import App from './App';
 import { inject } from '@vercel/analytics';
 import { SettingsProvider } from './contexts/Settings';
 
+declare global {
+  interface Window {
+    Pusher: any;
+  }
+}
+
 if (process.env.NODE_ENV === 'production') {
   inject();
 }

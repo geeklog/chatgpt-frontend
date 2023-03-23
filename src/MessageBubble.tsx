@@ -56,7 +56,7 @@ function MessageBubble({msg, handleReloadMessage}: {
             ? <Loading style={{height: '24px'}}/>
             : isError
               ? <>{msg.msg} <ReloadButton/></>
-              : msg.sender === Sender.Bot && msg.status == MessageStatus.Normal
+              : msg.sender === Sender.Bot && msg.status === MessageStatus.Normal
                 ? <MarkdownPreview
                     markdown={msg.media === 'image' ? `![](${msg.msg})` : msg.msg}
                   />

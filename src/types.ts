@@ -29,3 +29,7 @@ export interface Session {
   title: string;
   history: Message[];
 }
+
+export interface Pusher {
+  
+}

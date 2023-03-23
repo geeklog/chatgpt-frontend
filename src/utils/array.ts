@@ -1,3 +1,6 @@
+export function last<T>(array: T[]): T {
+  return array.length > 1 ? array[array.length-1] : array[0];
+}
 
 export function randomChoose<T>(array: Array<T>): T {
   return array[Math.floor(Math.random() * array.length)];
@@ -32,6 +35,17 @@ export function chunks<T>(array: T[], criteria: (item: T) => number): T[][] {
   chunksArr.push(currentChunk);
 
   return chunksArr;
+}
+
+export function insertSeparatorBetween<T,S>(arr: T[], separator: S): Array<T|S> {
+  const result: Array<T|S> = [];
+  for (let i = 0; i < arr.length; i++) {
+    result.push(arr[i]);
+    if (i !== arr.length - 1) {
+      result.push(separator);
+    }
+  }
+  return result;
 }
 
 /**

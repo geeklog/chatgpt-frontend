@@ -61,7 +61,7 @@ export const replaceBotErrorBubbleWithPending = (
 }
 
 export const removePendingMessages = (messages: Message[]) => {
-  return messages.filter(m => m.status != MessageStatus.Pending);
+  return messages.filter(m => m.status !== MessageStatus.Pending);
 }
 
 export const streamingAnswer = (

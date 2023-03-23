@@ -19,7 +19,8 @@ import { s} from './states/texts';
 import useLocale from './hooks/useLocale';
 import useEffectOnce from './hooks/useEffectOnce';
 import useSignal from './hooks/useSignal';
-import { chunks, interlace } from './utils/array';
+import { chunks, interlace, last } from './utils/array';
+import { pusher, withPusher } from './api/pusher';
 
 function ChatWindow({userId}: {userId: string}) {
   const showInitialPrompt = false;
@@ -39,13 +40,33 @@ function ChatWindow({userId}: {userId: string}) {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const conversation = urlParams.get('conversation');
+    
     if (!conversation) {
       handleInitialPrompt();
-      return;
+    } else {
+      const {msg, sessionID} = JSON.parse(b64DecodeUnicode(decodeURIComponent(conversation)));
+      setMessages(msg);
+      setSessionID(sessionID);
     }
-    const {msg, sessionID} = JSON.parse(b64DecodeUnicode(decodeURIComponent(conversation)));
-    setMessages(msg);
-    setSessionID(sessionID);
+
+    const channel = pusher.subscribe(`channel-${process.env.REACT_APP_PUSHER_ENV}`);
+    channel.bind('answer-event-id', ({message}: {message: string}) => {
+      console.log('answer-event-id', message);
+      const eventId = message;
+      withPusher(eventId, (text) => {
+        const pair = last(getMessages()).pair;
+        setMessages(
+          streamingAnswer({
+            messages: getMessages(),
+            pair,
+            media: MessageMedia.Text,
+            answer: text,
+            sessionID
+          })
+        );
+        scrollToBottom();
+      })
+    });
   }, '0');
 
   const handleInitialPrompt = async () => {
@@ -144,18 +165,7 @@ function ChatWindow({userId}: {userId: string}) {
     scrollToBottom();
 
     try {
-      api.chatStream(sessionID, pair, removePendingMessages(getMessages()), (text) => {
-        setMessages(
-          streamingAnswer({
-            messages: getMessages(),
-            pair,
-            media: MessageMedia.Text,
-            answer: text,
-            sessionID
-          })
-        );
-        scrollToBottom();
-      });
+      await api.chatStream(sessionID, pair, removePendingMessages(getMessages()));
     } catch (error: any) {
       setMessages(
         replaceBotPendingBubbleWithError({
