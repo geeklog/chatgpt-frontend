@@ -51,7 +51,6 @@ function ChatWindow({userId}: {userId: string}) {
 
     const channel = pusher.subscribe(`channel-${process.env.REACT_APP_PUSHER_ENV}`);
     channel.bind('answer-event-id', ({message}: {message: string}) => {
-      console.log('answer-event-id', message);
       const eventId = message;
       withPusher(eventId, (text) => {
         const pair = last(getMessages()).pair;
