@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, VStack, InputGroup, Flex, Divider, useDisclosure, Button } from "@chakra-ui/react";
 import { v4 as uuidv4 } from 'uuid';
 import './ChatWindow.css'
@@ -7,7 +7,7 @@ import * as api from './api/api';
 import SendButton from "./components/icons/SendButton";
 import { Message, MessageMedia } from './types';
 import MessageBubble from "./MessageBubble";
-import { botPending, getLastestUserQuery, removePendingMessages, replaceBotErrorBubbleWithPending, replaceBotPendingBubbleWithAnswer, replaceBotPendingBubbleWithError, streamingAnswer, userMessage } from "./states/MessagesHandler";
+import { botPending, getLastestUserQuery, receiveMessagesFromPusher, removePendingMessages, replaceBotErrorBubbleWithPending, replaceBotPendingBubbleWithAnswer, replaceBotPendingBubbleWithError, streamingAnswer, userMessage } from "./states/MessagesHandler";
 import useScrollToBottom from "./hooks/useScrollToBottom";
 import {texts} from './states/texts';
 import ChatTextarea from './ChatTextarea';
@@ -19,8 +19,9 @@ import { s} from './states/texts';
 import useLocale from './hooks/useLocale';
 import useEffectOnce from './hooks/useEffectOnce';
 import useSignal from './hooks/useSignal';
-import { chunks, interlace, last } from './utils/array';
-import { pusher, withPusher } from './api/pusher';
+import { chunks, interlace } from './utils/array';
+import { pusher } from './api/pusher';
+import {nanoid} from 'nanoid';
 
 function ChatWindow({userId}: {userId: string}) {
   const showInitialPrompt = false;
@@ -48,25 +49,24 @@ function ChatWindow({userId}: {userId: string}) {
       setMessages(msg);
       setSessionID(sessionID);
     }
+  }, '0');
 
-    const channel = pusher.subscribe(`channel-${process.env.REACT_APP_PUSHER_ENV}`);
-    channel.bind('answer-event-id', ({message}: {message: string}) => {
-      const eventId = message;
-      withPusher(eventId, (text) => {
-        const pair = last(getMessages()).pair;
+  useEffect(() => {
+    pusher.subscribe(`session-${sessionID}`).bind(`session-start`, ({pair}: {pair: string}) => {
+      receiveMessagesFromPusher(`conversation-${sessionID}-${pair}`, 'answer-stream', ({msg, pair}) => {
         setMessages(
           streamingAnswer({
             messages: getMessages(),
             pair,
             media: MessageMedia.Text,
-            answer: text,
+            answer: msg,
             sessionID
           })
         );
         scrollToBottom();
       })
     });
-  }, '0');
+  }, [sessionID])
 
   const handleInitialPrompt = async () => {
     if (!showInitialPrompt)
@@ -154,7 +154,7 @@ function ChatWindow({userId}: {userId: string}) {
 
     setTyping('');
 
-    const pair = uuidv4();
+    const pair = nanoid(6);
 
     setMessages([
       ...getMessages(),

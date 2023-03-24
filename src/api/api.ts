@@ -1,5 +1,4 @@
 import { Message } from "../types";
-import { withPusher } from "./pusher";
 
 export async function chat(message: string, sessionID: string, pair: string) {
   const response = await fetch(process.env.REACT_APP_CHATGPT_API_ENDPOINT!, {

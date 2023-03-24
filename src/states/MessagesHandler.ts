@@ -1,3 +1,7 @@
+import { Observable, of } from 'rxjs';
+import { mergeAll, concatMap, delay } from 'rxjs/operators';
+import { insertSeparatorBetween } from '../utils/array';
+import { pusher } from '../api/pusher';
 import { Message, MessageMedia, MessageStatus, Sender } from '../types';
 
 export const userMessage = (msg: string, pair: string, sessionID: string) => ({
@@ -79,4 +83,37 @@ export const streamingAnswer = (
 
 export const getLastestUserQuery = (messages: Message[], pair: string) => {
   return messages.filter(msg => msg.pair === pair && msg.sender === Sender.User).pop()?.msg;
+}
+
+type MsgRes = {
+  msg: string;
+  pair: string;
+}
+
+export function receiveMessagesFromPusher(channelName: string, eventId: string, callback: (text: MsgRes) => void) {
+  let fullText = '';
+
+  const channel = pusher.subscribe(channelName);
+
+  const messageStream = new Observable<MsgRes[]>(observer => {
+    channel.bind(eventId, ({pair, message}: {pair: string, message: string}) => {
+      observer.next(
+        insertSeparatorBetween(message.split(' '), ' ')
+          .map(msg => ({msg, pair}))
+      )
+    });
+  })
+
+  messageStream
+    .pipe(
+      mergeAll(),
+      concatMap(i => of(i).pipe(delay(50)))
+    )
+    .subscribe(({msg, pair}) => {
+      if (!msg)
+        return;
+      const t = new Date();
+      fullText += msg
+      callback({msg: fullText, pair});
+    });
 }

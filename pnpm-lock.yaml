@@ -19,6 +19,7 @@ specifiers:
   dayjs: ^1.11.7
   framer-motion: ^10.0.1
   mermaid: ^10.0.2
+  nanoid: ^4.0.1
   react: ^18.2.0
   react-dom: ^18.2.0
   react-markdown: ^8.0.5
@@ -47,6 +48,7 @@ dependencies:
   dayjs: 1.11.7
   framer-motion: 10.0.1_biqbaboplfbrettd7655fr4n2y
   mermaid: 10.0.2
+  nanoid: 4.0.1
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   react-markdown: 8.0.5_pmekkgnqduwlme35zpnqhenc34
@@ -8961,6 +8963,12 @@ packages:
   /nanoid/3.3.4:
     resolution: {integrity: sha512-MqBkQh/OHTS2egovRtLk45wEyNXwF+cokD+1YPf9u5VfJiRdAiRwB2froX5Co9Rh20xs4siNPm8naNotSD6RBw==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
+    hasBin: true
+    dev: false
+
+  /nanoid/4.0.1:
+    resolution: {integrity: sha512-udKGtCCUafD3nQtJg9wBhRP3KMbPglUsgV5JVsXhvyBs/oefqb4sqMEhKBBgqZncYowu58p1prsZQBYvAj/Gww==}
+    engines: {node: ^14 || ^16 || >=18}
     hasBin: true
     dev: false
 
