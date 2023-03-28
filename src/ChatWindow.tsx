@@ -189,9 +189,11 @@ function ChatWindow({userId}: {userId: string}) {
   }
 
   const lh = 1.5;
-  const hChatTextfield = `calc(${lh}em * ${nLine} + 1em)`;
-  const hChatInput = `calc(${lh*1.12}em * ${nLine} + 2.2em)`
-  const hMessages = `calc(100vh - (${lh*1.12}em * ${nLine} + 2.2em))`;
+  const maxLines = isMobile ? 3: 10;
+  const nLineLimited = nLine > maxLines ? maxLines : nLine;
+  const hChatTextfield = `calc(${lh}em * ${nLineLimited} + 1em)`;
+  const hChatInput = `calc(${lh*1.12}em * ${nLineLimited} + 2.2em)`
+  const hMessages = `calc(100vh - (${lh*1.12}em * ${nLineLimited} + 2.2em))`;
 
   const history = interlace(chunks(getMessages(), (msg => uuid2number(msg.sessionID))), 'divider')
 

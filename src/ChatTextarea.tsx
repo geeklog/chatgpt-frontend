@@ -14,16 +14,7 @@ function ChatTextarea(props: TextareaProps & {typingHook: any, nLineHook: any, o
   const {isMobile} = useDeviceDetection();
 
   const handleKeyDown = (event: KeyboardEvent) => {
-    const target = event.target as HTMLInputElement;
-
     if (event.shiftKey && event.key === "Enter") {
-      event.preventDefault();
-      const cursorPosition = target.selectionStart!;
-      const text = target.value;
-      const newValue = text.substring(0, cursorPosition) + "\n" + text.substring(cursorPosition);
-      setValue(newValue);
-      setNLines(newValue.split('\n').length);
-      target.setSelectionRange(cursorPosition + 1, cursorPosition + 1);
       return;
     }
     if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
