@@ -7,6 +7,8 @@ import './MarkdownPreview.css';
 
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter'
 import tsx from 'react-syntax-highlighter/dist/cjs/languages/prism/tsx'
+import python from 'react-syntax-highlighter/dist/cjs/languages/prism/python'
+import java from 'react-syntax-highlighter/dist/cjs/languages/prism/java'
 import typescript from 'react-syntax-highlighter/dist/cjs/languages/prism/typescript'
 import scss from 'react-syntax-highlighter/dist/cjs/languages/prism/scss'
 import bash from 'react-syntax-highlighter/dist/cjs/languages/prism/bash'
@@ -21,6 +23,8 @@ SyntaxHighlighter.registerLanguage('scss', scss)
 SyntaxHighlighter.registerLanguage('bash', bash)
 SyntaxHighlighter.registerLanguage('markdown', markdown)
 SyntaxHighlighter.registerLanguage('json', json)
+SyntaxHighlighter.registerLanguage('java', java)
+SyntaxHighlighter.registerLanguage('python', python)
 
 function MarkdownPreview({markdown}: {markdown: string}) {
   const syntaxTheme = oneDark

@@ -1,7 +1,8 @@
-import { Message } from "../types";
+import { Attachment, Message } from "../types";
+import { withSSE } from "./sse";
 
 export async function chat(message: string, sessionID: string, pair: string) {
-  const response = await fetch(process.env.REACT_APP_CHATGPT_API_ENDPOINT!, {
+  const response = await fetch(process.env.REACT_APP_API_ENDPOINT!, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -25,22 +26,40 @@ export async function chat(message: string, sessionID: string, pair: string) {
   throw new Error('' + response.text);
 }
 
-export async function chatStream(sessionID: string, pair: string, history: Message[]) {
-  const response = await fetch(process.env.REACT_APP_CHATGPT_API_ENDPOINT!, {
+export async function chatStream(
+  sessionID: string,
+  pair: string,
+  history: Message[],
+  attachments: Attachment[],
+  onMessage?: (msg: string) => void
+) {
+  const sseEndpoint = process.env.REACT_APP_API_ENDPOINT! + '/chat/claude2';
+  const response = await fetch(sseEndpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       session: sessionID,
       pair,
-      history
+      history,
+      attachments
     })
   });
   if (response.status === 200) {
     const data = await response.json();
     if (data.status === 'ok') {
-      // withSSE(data.endpoint, callback);
+      onMessage && withSSE(process.env.REACT_APP_API_ENDPOINT! + '/sse/' + data.stream_id, onMessage);
     } else {
       throw new Error(`${data.status}`);
     }
   }
+}
+
+export async function upload(form: FormData) {
+  const uploadEndpoint = process.env.REACT_APP_API_ENDPOINT! + '/upload';
+  const response = await fetch(uploadEndpoint, {
+    method: 'POST',
+    body: form,
+  });
+  const res = await response.json();
+  return res;
 }

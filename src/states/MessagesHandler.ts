@@ -2,15 +2,16 @@ import { Observable, of } from 'rxjs';
 import { mergeAll, concatMap, delay } from 'rxjs/operators';
 import { insertSeparatorBetween } from '../utils/array';
 import { pusher } from '../api/pusher';
-import { Message, MessageMedia, MessageStatus, Sender } from '../types';
+import { Attachment, Message, MessageMedia, MessageStatus, Sender } from '../types';
 
-export const userMessage = (msg: string, pair: string, sessionID: string) => ({
+export const userMessage = (msg: string, pair: string, sessionID: string, attachments?: Attachment[]) => ({
   sender: Sender.User,
   media: MessageMedia.Text,
   msg,
   status: MessageStatus.Normal,
   pair,
   sessionID,
+  attachments,
   time: new Date()
 });
 

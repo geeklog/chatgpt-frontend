@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Box, VStack, InputGroup, Flex, Divider, useDisclosure, Button } from "@chakra-ui/react";
+import { Box, VStack, InputGroup, Flex, Divider, useDisclosure, Button, HStack } from "@chakra-ui/react";
 import { v4 as uuidv4 } from 'uuid';
 import './ChatWindow.css'
 import useMemoryStorage from './hooks/useMemoryStorage';
 import * as api from './api/api';
 import SendButton from "./components/icons/SendButton";
-import { Message, MessageMedia } from './types';
+import { Attachment, Message, MessageMedia } from './types';
 import MessageBubble from "./MessageBubble";
 import { botPending, getLastestUserQuery, receiveMessagesFromPusher, removePendingMessages, replaceBotErrorBubbleWithPending, replaceBotPendingBubbleWithAnswer, replaceBotPendingBubbleWithError, streamingAnswer, userMessage } from "./states/MessagesHandler";
 import useScrollToBottom from "./hooks/useScrollToBottom";
 import {texts} from './states/texts';
 import ChatTextarea from './ChatTextarea';
 import useDeviceDetection from './hooks/useDeviceDetection';
-import { CheckIcon, ExternalLinkIcon } from '@chakra-ui/icons';
+import { CheckIcon, ExternalLinkIcon, AttachmentIcon } from '@chakra-ui/icons';
 import FadedButton from './components/FadedButton';
 import { b64DecodeUnicode, b64EncodeUnicode, uuid2number } from './utils/hashing';
 import { s} from './states/texts';
@@ -22,6 +22,8 @@ import useSignal from './hooks/useSignal';
 import { chunks, interlace } from './utils/array';
 import { pusher } from './api/pusher';
 import {nanoid} from 'nanoid';
+import FileUploadButton from './components/UploadButton';
+import AttachmentBox from './components/AttachmentBox';
 
 function ChatWindow({userId}: {userId: string}) {
   const showInitialPrompt = false;
@@ -37,6 +39,8 @@ function ChatWindow({userId}: {userId: string}) {
   
   let [sessionID, setSessionID] = useMemoryStorage('chat-session-id', uuidv4());
 
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+
   useEffectOnce(() => {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
@@ -51,22 +55,22 @@ function ChatWindow({userId}: {userId: string}) {
     }
   }, '0');
 
-  useEffect(() => {
-    pusher.subscribe(`session-${sessionID}`).bind(`session-start`, ({pair}: {pair: string}) => {
-      receiveMessagesFromPusher(`conversation-${sessionID}-${pair}`, 'answer-stream', ({msg, pair}) => {
-        setMessages(
-          streamingAnswer({
-            messages: getMessages(),
-            pair,
-            media: MessageMedia.Text,
-            answer: msg,
-            sessionID
-          })
-        );
-        scrollToBottom();
-      })
-    });
-  }, [sessionID])
+  // useEffect(() => {
+  //   pusher.subscribe(`session-${sessionID}`).bind(`session-start`, ({pair}: {pair: string}) => {
+  //     receiveMessagesFromPusher(`conversation-${sessionID}-${pair}`, 'answer-stream', ({msg, pair}) => {
+  //       setMessages(
+  //         streamingAnswer({
+  //           messages: getMessages(),
+  //           pair,
+  //           media: MessageMedia.Text,
+  //           answer: msg,
+  //           sessionID
+  //         })
+  //       );
+  //       scrollToBottom();
+  //     })
+  //   });
+  // }, [sessionID])
 
   const handleInitialPrompt = async () => {
     if (!showInitialPrompt)
@@ -156,15 +160,35 @@ function ChatWindow({userId}: {userId: string}) {
 
     const pair = nanoid(6);
 
-    setMessages([
+    const messages = [
       ...getMessages(),
-      userMessage(prompt, pair, sessionID),
-      botPending(pair, sessionID)
-    ]);
+      userMessage(prompt, pair, sessionID, attachments)
+    ];
+    messages.push(botPending(pair, sessionID));
+    setMessages(messages);
+
+    setAttachments([]);
+    
     scrollToBottom();
 
     try {
-      await api.chatStream(sessionID, pair, removePendingMessages(getMessages()));
+      await api.chatStream(
+        sessionID,
+        pair,
+        removePendingMessages(getMessages()),
+        attachments,
+        (msg) => {
+          setMessages(
+            streamingAnswer({
+              messages: getMessages(),
+              pair,
+              media: MessageMedia.Text,
+              answer: msg,
+              sessionID
+            })
+          );
+        }
+      );
     } catch (error: any) {
       setMessages(
         replaceBotPendingBubbleWithError({
@@ -175,6 +199,11 @@ function ChatWindow({userId}: {userId: string}) {
         })
       );
     }
+  };
+
+  const onUploaded = (file: Attachment) => {
+    console.log('converted_doc', file);
+    setAttachments([...attachments, file]);
   };
 
   const onShare = () => {
@@ -230,6 +259,9 @@ function ChatWindow({userId}: {userId: string}) {
           )
         }
       </VStack>
+      <HStack pos="absolute" bottom={100} right={4} w={160} h={100}>
+        {attachments.map((attachment, i) => <AttachmentBox key={i} attachment={attachment} />) }
+      </HStack>
       <InputGroup background="white" h={hChatInput} w="100%">
         {<ChatTextarea
           size="lg"
@@ -245,6 +277,9 @@ function ChatWindow({userId}: {userId: string}) {
           onSendMessage={handleSendMessage}
           wordBreak="break-all"
         />}
+        <Flex pr={2} height="100%" color="blue.500" alignContent="center" alignItems="center">
+          <FileUploadButton onUploaded={onUploaded}/>
+        </Flex>
         <Flex pr={2} pb={4} color="blue.500" direction="column-reverse">
           <SendButton onClick={handleSendMessage} cursor="pointer" />
         </Flex>
