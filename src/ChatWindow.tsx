@@ -25,8 +25,9 @@ import {nanoid} from 'nanoid';
 import FileUploadButton from './components/UploadButton';
 import AttachmentBox from './components/AttachmentBox';
 
-function ChatWindow({userId}: {userId: string}) {
+function ChatWindow({chat}: {chat: 'claude2' | 'azure-chatgpt3'}) {
   const showInitialPrompt = false;
+  const enableAttachments = chat === 'claude2';
   const {locale} = useLocale();
   const {isMobile} = useDeviceDetection();
   
@@ -173,6 +174,7 @@ function ChatWindow({userId}: {userId: string}) {
 
     try {
       await api.chatStream(
+        chat,
         sessionID,
         pair,
         removePendingMessages(getMessages()),
@@ -277,9 +279,11 @@ function ChatWindow({userId}: {userId: string}) {
           onSendMessage={handleSendMessage}
           wordBreak="break-all"
         />}
-        <Flex pr={2} height="100%" color="blue.500" alignContent="center" alignItems="center">
-          <FileUploadButton onUploaded={onUploaded}/>
-        </Flex>
+        {enableAttachments && 
+          <Flex pr={2} height="100%" color="blue.500" alignContent="center" alignItems="center">
+            <FileUploadButton onUploaded={onUploaded}/>
+          </Flex>
+        }
         <Flex pr={2} pb={4} color="blue.500" direction="column-reverse">
           <SendButton onClick={handleSendMessage} cursor="pointer" />
         </Flex>

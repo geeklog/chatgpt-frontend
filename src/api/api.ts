@@ -27,13 +27,14 @@ export async function chat(message: string, sessionID: string, pair: string) {
 }
 
 export async function chatStream(
+  chatType: 'claude2' | 'azure-chatgpt3',
   sessionID: string,
   pair: string,
   history: Message[],
   attachments: Attachment[],
   onMessage?: (msg: string) => void
 ) {
-  const sseEndpoint = process.env.REACT_APP_API_ENDPOINT! + '/chat/claude2';
+  const sseEndpoint = process.env.REACT_APP_API_ENDPOINT! + `/chat/${chatType}`;
   const response = await fetch(sseEndpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
