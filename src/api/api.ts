@@ -1,3 +1,4 @@
+import { Workflow } from "../states/workflow";
 import { Attachment, Message } from "../types";
 import { withSSE } from "./sse";
 
@@ -24,6 +25,36 @@ export async function chat(message: string, sessionID: string, pair: string) {
     }
   }
   throw new Error('' + response.text);
+}
+
+export async function workflows(
+  sessionID: string,
+  pair: string,
+  history: Message[],
+  attachments: Attachment[],
+  workflow: Workflow,
+  onMessage?: (msg: string) => void
+) {
+  const sseEndpoint = process.env.REACT_APP_API_ENDPOINT! + `/workflow/` + workflow.id;
+  const response = await fetch(sseEndpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      session: sessionID,
+      pair,
+      history,
+      attachments,
+      workflow,
+    })
+  });
+  if (response.status === 200) {
+    const data = await response.json();
+    if (data.status === 'ok') {
+      onMessage && withSSE(process.env.REACT_APP_API_ENDPOINT! + '/sse/' + data.stream_id, onMessage);
+    } else {
+      throw new Error(`${data.status}`);
+    }
+  }
 }
 
 export async function chatStream(

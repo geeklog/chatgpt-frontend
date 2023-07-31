@@ -7,7 +7,7 @@ import * as api from '../../api/api';
 import SendButton from "../accessories/SendButton";
 import { Attachment, Message, MessageMedia } from '../../types';
 import MessageBubble from "./MessageBubble";
-import { botPending, getLastestUserQuery, receiveMessagesFromPusher, removePendingMessages, replaceBotErrorBubbleWithPending, replaceBotPendingBubbleWithAnswer, replaceBotPendingBubbleWithError, streamingAnswer, userMessage } from "../../states/MessagesHandler";
+import { botPending, getLastestUserQuery, removePendingMessages, replaceBotErrorBubbleWithPending, replaceBotPendingBubbleWithAnswer, replaceBotPendingBubbleWithError, streamingAnswer, userMessage } from "../../states/MessagesHandler";
 import useScrollToBottom from "../../hooks/useScrollToBottom";
 import {texts} from '../../states/texts';
 import ChatTextarea from './ChatTextarea';
@@ -20,10 +20,10 @@ import useLocale from '../../hooks/useLocale';
 import useEffectOnce from '../../hooks/useEffectOnce';
 import useSignal from '../../hooks/useSignal';
 import { chunks, interlace } from '../../utils/array';
-import { pusher } from '../../api/pusher';
 import {nanoid} from 'nanoid';
 import FileUploadButton from '../accessories/UploadButton';
 import AttachmentBox from '../accessories/AttachmentBox';
+import { getWorkflowByTriggerWord } from '../../states/workflow';
 
 function ChatWindow({chat}: {chat: 'claude2' | 'azure-chatgpt3'}) {
   const showInitialPrompt = false;
@@ -55,23 +55,6 @@ function ChatWindow({chat}: {chat: 'claude2' | 'azure-chatgpt3'}) {
       setSessionID(sessionID);
     }
   }, '0');
-
-  // useEffect(() => {
-  //   pusher.subscribe(`session-${sessionID}`).bind(`session-start`, ({pair}: {pair: string}) => {
-  //     receiveMessagesFromPusher(`conversation-${sessionID}-${pair}`, 'answer-stream', ({msg, pair}) => {
-  //       setMessages(
-  //         streamingAnswer({
-  //           messages: getMessages(),
-  //           pair,
-  //           media: MessageMedia.Text,
-  //           answer: msg,
-  //           sessionID
-  //         })
-  //       );
-  //       scrollToBottom();
-  //     })
-  //   });
-  // }, [sessionID])
 
   const handleInitialPrompt = async () => {
     if (!showInitialPrompt)
@@ -171,6 +154,22 @@ function ChatWindow({chat}: {chat: 'claude2' | 'azure-chatgpt3'}) {
     setAttachments([]);
     scrollToBottom();
 
+    const workflow = getWorkflowByTriggerWord(prompt);
+    if (workflow) {
+      await api.workflows(sessionID, pair, messages, [], workflow, (msg) => {
+        setMessages(
+          streamingAnswer({
+            messages: getMessages(),
+            pair,
+            media: MessageMedia.Text,
+            answer: msg,
+            sessionID
+          })
+        );
+      });
+      return;
+    }
+
     try {
       await api.chatStream(
         chat,
@@ -230,7 +229,7 @@ function ChatWindow({chat}: {chat: 'claude2' | 'azure-chatgpt3'}) {
   const history = interlace(conversations, 'divider');
 
   return (
-    <Box pos="relative" h="calc(100vh - 80px)" overflow="hidden">
+    <Box pos="relative" h="calc(100vh - 80px)" minW={600} boxShadow='xs' overflow="hidden">
       <FadedButton size="sm" pos="absolute" top="0" right="2" zIndex="100" title="Copy share link"
         on={<CheckIcon />}
         off={<ExternalLinkIcon />}

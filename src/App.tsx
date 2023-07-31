@@ -1,6 +1,7 @@
 import { extendTheme, ChakraBaseProvider } from '@chakra-ui/react'
 import SettingPage from './SettingsPage';
 import MainWindow from './MainWindow';
+import { WorkflowContext, workflows } from './states/workflow';
 
 const theme = extendTheme({
   styles: {
@@ -16,11 +17,9 @@ const theme = extendTheme({
 function App() {
   return (
     <ChakraBaseProvider theme={theme}>
-      {/*  */}
-        {/* <SessionNavbar /> */}
-      <MainWindow />
-        {/* <ChatWindows /> */}
-      {/* </Flex> */}
+      <WorkflowContext.Provider value={workflows}>
+        <MainWindow />
+      </WorkflowContext.Provider>
       <SettingPage />
     </ChakraBaseProvider>
   )

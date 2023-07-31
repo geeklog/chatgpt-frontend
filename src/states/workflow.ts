@@ -1,0 +1,106 @@
+import React, { useReducer } from "react";
+import _ from 'lodash';
+
+const templateGenPseudocode = `Read the document and provide the pseudocode, the pseudocode must provide all the details that is needed to know for start a payment request / calculate hash / send api / parse the response / verify response, the pseudocode must be complete and all the information is from the document, the psedocode must be complete and not missing any details. Be very careful don't miss any required parameters/fields, Be very careful do not make up anything. I want the complete psedocode, don't use the words "like, etc"
+Put the pseudocode in the code block.`;
+
+const templateRelevantInterface = `As a senior Java programmer, please read the interface definition in the attachment, and extract all the relavant dependencies code for implements a \`public ThirdSubmitResponseBO pay(ThirdSubmitRequestBO requestBO)\` method in the \`PaymentProvider\`.
+And all the dependencies for the dependencies, and so on.
+You must list all the interfaces and all the fields.
+Double check if you missing anything before you response.
+Response in JSON.`;
+
+const templateGenJava = `As a senior Java programmer, please convert the pseudocode into real Java code. Giving the Interface definition in json, please help transform the payment request code to a \`EghlProvider\` class that implements the \`public ThirdSubmitResponseBO pay(ThirdSubmitRequestBO requestBO)\` method.
+You must provide the full implementation, include but not limited to: low level details, utility code and helper functions, implement details for using libraries for cryptographic hashing, HTTP requests, and URL encoding/decoding. You must be very detailed. Do this line-by-line and not skip any lines of logic or code.
+
+Pseudocode for the \`pay\` method:
+\`\`\`pseudocode
+{pseudocode}
+\`\`\`
+
+API Interface definition in JSON format:
+\`\`\`json
+{api_interface}
+\`\`\``
+
+type WorkflowStep = {
+  title: string;
+  prompt: string;
+}
+
+export type Workflow = {
+  id: string,
+  title: string;
+  triggerWords: string,
+  steps: WorkflowStep[]
+}
+
+type WorkflowAction = {
+  changeTemplate1: (text: string) => void,
+  changeTemplate2: (text: string) => void,
+  changeTemplate3: (text: string) => void
+}
+
+const fusion1: Workflow = {
+  id: 'fusion1',
+  title: 'Fusion Payment API Integration to EGHL',
+  triggerWords: 'fusion integration',
+  steps: [
+    {
+      title: 'Claude to read the EGHL Integration Document',
+      prompt: templateGenPseudocode
+    },
+    {
+      title: 'Glaude to summarize the Fusion API Definition',
+      prompt: templateRelevantInterface
+    },
+    {
+      title: 'ChatGPT to combine the result and generate code.',
+      prompt: templateGenJava
+    },
+  ]
+}
+
+export const workflows: Record<string, Workflow> = {
+  'fusion1': fusion1
+};
+
+export function getWorkflowByTriggerWord(triggerWord: string) {
+  for (let k of Object.keys(workflows)) {
+    if (workflows[k].triggerWords === triggerWord)
+      return workflows[k];
+  }
+  return undefined;
+}
+
+const reducer = (state: Record<string, Workflow>, {type, id, workflow}: {type: 'change', id: string, workflow: Workflow}) => {
+  switch (type) {
+    case 'change':
+      workflow = _.cloneDeep(workflow)
+      workflows[id] = workflow;
+      return {...state, ...{[id]: workflow}};
+    default:
+      throw new Error();
+  }
+}
+
+export const useWorkflow = (workflowId: string): [Workflow, WorkflowAction] => {
+  const [state, dispatch] = useReducer(reducer, workflows);
+  const currentWorkflow = state[workflowId];
+  const currentWrokflowHandler = {
+    changeTemplate1: (text: string) => {
+      currentWorkflow.steps[0].prompt = text;
+      dispatch({type: 'change', id: workflowId, workflow: currentWorkflow});
+    },
+    changeTemplate2: (text: string) => {
+      currentWorkflow.steps[1].prompt = text;
+      dispatch({type: 'change', id: workflowId, workflow: currentWorkflow});
+    },
+    changeTemplate3: (text: string) => {
+      dispatch({type: 'change', id: workflowId, workflow: currentWorkflow});
+    }
+  }
+  return [currentWorkflow, currentWrokflowHandler];
+}
+
+export const WorkflowContext = React.createContext(workflows);

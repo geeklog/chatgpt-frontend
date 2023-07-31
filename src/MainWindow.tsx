@@ -2,6 +2,8 @@ import { IconButton, Avatar, Box, CloseButton, Flex, HStack, VStack, Icon, useCo
 import { FiHome, FiTrendingUp, FiCompass, FiStar, FiSettings, FiMenu, FiBell, FiChevronDown, } from 'react-icons/fi'
 import { IconType } from 'react-icons'
 import ChatWindow from './components/chat/ConversationPane'
+import PromptEditor from './components/pe/PromptEditor'
+import React from 'react'
 
 interface LinkItemProps {
   name: string
@@ -180,8 +182,11 @@ const MainWindow = () => {
       </Drawer>
       {/* mobilenav */}
       <Nav onOpen={onOpen} />
-      <Box ml={{ base: 0, md: 48 }}>
-        <ChatWindow chat="claude2" />
+      <Box ml={{ base: 0, md: 48}}>
+        <HStack spacing={0} alignItems="stretch">
+          <ChatWindow chat="claude2" />
+          <PromptEditor />
+        </HStack>
       </Box>
     </Box>
   )
