@@ -1,7 +1,7 @@
 import { AttachmentIcon } from '@chakra-ui/icons';
 import React, { useRef } from 'react';
-import * as api from '../api/api';
-import { Attachment } from '../types';
+import * as api from '../../api/api';
+import { Attachment } from '../../types';
 
 type UploadedCallback = (file: Attachment) => void;
 

@@ -1,5 +1,5 @@
 import { Box, Flex, Spacer, Button, IconButton, useDisclosure } from "@chakra-ui/react";
-import ChatAvatar from './ChatAvatar';
+import ChatAvatar from './components/chat/ChatAvatar';
 import { Session } from "./types";
 import { v4 as uuidv4 } from 'uuid';
 

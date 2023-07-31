@@ -1,8 +1,6 @@
-import {Flex} from '@chakra-ui/react';
 import { extendTheme, ChakraBaseProvider } from '@chakra-ui/react'
-import ChatWindow from './ChatWindow';
-import SessionNavbar from './SessionNavbar';
 import SettingPage from './SettingsPage';
+import MainWindow from './MainWindow';
 
 const theme = extendTheme({
   styles: {
@@ -18,11 +16,11 @@ const theme = extendTheme({
 function App() {
   return (
     <ChakraBaseProvider theme={theme}>
-      <Flex h="100vh" w="100vw" alignItems="center" justifyContent="space-evenly">
+      {/*  */}
         {/* <SessionNavbar /> */}
-        <ChatWindow chat="claude2" />
-        <ChatWindow chat="azure-chatgpt3" />
-      </Flex>
+      <MainWindow />
+        {/* <ChatWindows /> */}
+      {/* </Flex> */}
       <SettingPage />
     </ChakraBaseProvider>
   )

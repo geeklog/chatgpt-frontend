@@ -1,7 +1,7 @@
-import { getRelativeTime } from './utils/date';
+import { getRelativeTime } from '../../utils/date';
 import { Text } from '@chakra-ui/react';
 import { useState } from 'react';
-import { useGlobalInterval } from './hooks/useGlobalInterval';
+import { useGlobalInterval } from '../../hooks/useGlobalInterval';
 
 function DateLabel(props: any) {
   const [time, setTime] = useState('');

@@ -1,5 +1,5 @@
 import { Textarea, TextareaProps } from "@chakra-ui/react";
-import useDeviceDetection from "./hooks/useDeviceDetection";
+import useDeviceDetection from "../../hooks/useDeviceDetection";
 
 type SendMessageHandler = (startNewSession: boolean) => Promise<void>;
 

@@ -1,13 +1,13 @@
-import { Box, Button, HStack } from '@chakra-ui/react';
-import Loading from './components/Loading';
-import { Message, MessageStatus, Sender, MessageMedia } from './types';
+import { Box, HStack } from '@chakra-ui/react';
+import Loading from '../accessories/Loading';
+import { Message, MessageStatus, Sender } from '../../types';
 import './MessageBubble.css'
 import { RepeatIcon } from '@chakra-ui/icons';
-import MarkdownPreview from './components/MarkdownPreview';
-import Lines from './components/Lines';
+import MarkdownPreview from '../md/MarkdownPreview';
+import Lines from '../accessories/Lines';
 import DateLabel from './DateLabel';
 import ChatAvatar from './ChatAvatar';
-import AttachmentBox from './components/AttachmentBox';
+import AttachmentBox from '../accessories/AttachmentBox';
 
 function ReloadButton(props: any) {
   return <RepeatIcon {...props} />

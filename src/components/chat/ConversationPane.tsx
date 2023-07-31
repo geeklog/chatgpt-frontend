@@ -1,29 +1,29 @@
 import { useState, useEffect } from 'react';
 import { Box, VStack, InputGroup, Flex, Divider, useDisclosure, Button, HStack } from "@chakra-ui/react";
 import { v4 as uuidv4 } from 'uuid';
-import './ChatWindow.css'
-import useMemoryStorage from './hooks/useMemoryStorage';
-import * as api from './api/api';
-import SendButton from "./components/icons/SendButton";
-import { Attachment, Message, MessageMedia } from './types';
+import './ConversationPane.css'
+import useMemoryStorage from '../../hooks/useMemoryStorage';
+import * as api from '../../api/api';
+import SendButton from "../accessories/SendButton";
+import { Attachment, Message, MessageMedia } from '../../types';
 import MessageBubble from "./MessageBubble";
-import { botPending, getLastestUserQuery, receiveMessagesFromPusher, removePendingMessages, replaceBotErrorBubbleWithPending, replaceBotPendingBubbleWithAnswer, replaceBotPendingBubbleWithError, streamingAnswer, userMessage } from "./states/MessagesHandler";
-import useScrollToBottom from "./hooks/useScrollToBottom";
-import {texts} from './states/texts';
+import { botPending, getLastestUserQuery, receiveMessagesFromPusher, removePendingMessages, replaceBotErrorBubbleWithPending, replaceBotPendingBubbleWithAnswer, replaceBotPendingBubbleWithError, streamingAnswer, userMessage } from "../../states/MessagesHandler";
+import useScrollToBottom from "../../hooks/useScrollToBottom";
+import {texts} from '../../states/texts';
 import ChatTextarea from './ChatTextarea';
-import useDeviceDetection from './hooks/useDeviceDetection';
+import useDeviceDetection from '../../hooks/useDeviceDetection';
 import { CheckIcon, ExternalLinkIcon, AttachmentIcon } from '@chakra-ui/icons';
-import FadedButton from './components/FadedButton';
-import { b64DecodeUnicode, b64EncodeUnicode, uuid2number } from './utils/hashing';
-import { s} from './states/texts';
-import useLocale from './hooks/useLocale';
-import useEffectOnce from './hooks/useEffectOnce';
-import useSignal from './hooks/useSignal';
-import { chunks, interlace } from './utils/array';
-import { pusher } from './api/pusher';
+import FadedButton from '../accessories/FadedButton';
+import { b64DecodeUnicode, b64EncodeUnicode, uuid2number } from '../../utils/hashing';
+import { s } from '../../states/texts';
+import useLocale from '../../hooks/useLocale';
+import useEffectOnce from '../../hooks/useEffectOnce';
+import useSignal from '../../hooks/useSignal';
+import { chunks, interlace } from '../../utils/array';
+import { pusher } from '../../api/pusher';
 import {nanoid} from 'nanoid';
-import FileUploadButton from './components/UploadButton';
-import AttachmentBox from './components/AttachmentBox';
+import FileUploadButton from '../accessories/UploadButton';
+import AttachmentBox from '../accessories/AttachmentBox';
 
 function ChatWindow({chat}: {chat: 'claude2' | 'azure-chatgpt3'}) {
   const showInitialPrompt = false;
@@ -169,7 +169,6 @@ function ChatWindow({chat}: {chat: 'claude2' | 'azure-chatgpt3'}) {
     setMessages(messages);
 
     setAttachments([]);
-    
     scrollToBottom();
 
     try {
@@ -223,16 +222,16 @@ function ChatWindow({chat}: {chat: 'claude2' | 'azure-chatgpt3'}) {
   const maxLines = isMobile ? 3: 10;
   const nLineLimited = nLine > maxLines ? maxLines : nLine;
   const hChatTextfield = `calc(${lh}em * ${nLineLimited} + 1em)`;
-  const hChatInput = `calc(${lh*1.12}em * ${nLineLimited} + 2.2em)`
-  const hMessages = `calc(100vh - (${lh*1.12}em * ${nLineLimited} + 2.2em))`;
 
-  const history = interlace(chunks(getMessages(), (msg => uuid2number(msg.sessionID))), 'divider')
+  // Separate messages into conversations by sessionID
+  const conversations = chunks(getMessages(), (msg => uuid2number(msg.sessionID)));
+
+  // Add a divider between conversations
+  const history = interlace(conversations, 'divider');
 
   return (
-    <Box h="100%" w="100%" maxW="800px" bg="gray.100" pos="relative"
-      overflow="hidden"
-    >
-      <FadedButton size="sm" pos="absolute" top="0.5em" right="1em" zIndex="100" title="复制分享链接"
+    <Box pos="relative" h="calc(100vh - 80px)" overflow="hidden">
+      <FadedButton size="sm" pos="absolute" top="0" right="2" zIndex="100" title="Copy share link"
         on={<CheckIcon />}
         off={<ExternalLinkIcon />}
         delay={1000}
@@ -240,9 +239,9 @@ function ChatWindow({chat}: {chat: 'claude2' | 'azure-chatgpt3'}) {
       />
       <VStack
         ref={messagesViewRef}
-        h={hMessages}
+        h="calc(100vh - 80px - 61px)"
         overflowY="auto"
-        overflowX="hidden"
+        overflowX="auto"
         spacing='5'
         px={5}
         py={10}
@@ -261,10 +260,13 @@ function ChatWindow({chat}: {chat: 'claude2' | 'azure-chatgpt3'}) {
           )
         }
       </VStack>
-      <HStack pos="absolute" bottom={100} right={4} w={160} h={100}>
+      
+      {/* Attachments to be uploaded */}
+      <HStack pos="absolute" bottom={20} right={8}>
         {attachments.map((attachment, i) => <AttachmentBox key={i} attachment={attachment} />) }
       </HStack>
-      <InputGroup background="white" h={hChatInput} w="100%">
+      
+      <InputGroup background="white" w="100%" pos="absolute" left={0} bottom={0}>
         {<ChatTextarea
           size="lg"
           placeholder={isMobile ? "你想聊点什么..." : "Shift + Enter 换行、Cmd + Enter 开启新对话"}
@@ -279,14 +281,10 @@ function ChatWindow({chat}: {chat: 'claude2' | 'azure-chatgpt3'}) {
           onSendMessage={handleSendMessage}
           wordBreak="break-all"
         />}
-        {enableAttachments && 
-          <Flex pr={2} height="100%" color="blue.500" alignContent="center" alignItems="center">
-            <FileUploadButton onUploaded={onUploaded}/>
-          </Flex>
-        }
-        <Flex pr={2} pb={4} color="blue.500" direction="column-reverse">
+        <HStack pr={2} color="blue.500" direction="column-reverse">
+          {enableAttachments && <FileUploadButton onUploaded={onUploaded}/> }
           <SendButton onClick={handleSendMessage} cursor="pointer" />
-        </Flex>
+        </HStack>
       </InputGroup>
     </Box>
   );
