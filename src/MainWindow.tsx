@@ -1,8 +1,8 @@
-import { IconButton, Avatar, Box, CloseButton, Flex, HStack, VStack, Icon, useColorModeValue, Text, Drawer, DrawerContent, useDisclosure, BoxProps, FlexProps, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Image, } from '@chakra-ui/react'
-import { FiHome, FiTrendingUp, FiCompass, FiStar, FiSettings, FiMenu, FiBell, FiChevronDown, } from 'react-icons/fi'
+import { IconButton, Avatar, Box, CloseButton, Flex, HStack, VStack, Icon, useColorModeValue, Text, Drawer, DrawerContent, useDisclosure, BoxProps, FlexProps, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Image, DrawerOverlay, Button, DrawerBody, DrawerCloseButton, DrawerFooter, DrawerHeader, Input, UseDisclosureReturn, } from '@chakra-ui/react'
+import { FiHome, FiTrendingUp, FiCompass, FiStar, FiSettings, FiMenu, FiBell, FiChevronDown, FiShare, } from 'react-icons/fi'
 import { IconType } from 'react-icons'
-import ChatWindow from './components/chat/ConversationPane'
-import PromptEditor from './components/pe/PromptEditor'
+import ConversationWindow from './components/chat/ConversationWindow'
+import WorkflowEditor from './components/pe/WorkflowEditor'
 import React from 'react'
 
 interface LinkItemProps {
@@ -15,13 +15,21 @@ interface NavItemProps extends FlexProps {
   children: React.ReactNode
 }
 
-interface MobileProps extends FlexProps {
-  onOpen: () => void
+interface NavProps extends FlexProps {
+  nav: {
+    control: UseDisclosureReturn
+  },
+  rightPane: {
+    trigger: IconButtonRef,
+    control: UseDisclosureReturn,
+  }
 }
 
 interface SidebarProps extends BoxProps {
   onClose: () => void
 }
+
+type IconButtonRef = React.MutableRefObject<HTMLButtonElement | null>;
 
 const LinkItems: Array<LinkItemProps> = [
   { name: 'Home', icon: FiHome },
@@ -93,7 +101,7 @@ const NavItem = ({ icon, children, ...rest }: NavItemProps) => {
   )
 }
 
-const Nav = ({ onOpen, ...rest }: MobileProps) => {
+const Nav = ({ nav, rightPane, ...rest }: NavProps) => {
   return (
     <Flex
       ml={{ base: 0, md: 48 }}
@@ -107,7 +115,7 @@ const Nav = ({ onOpen, ...rest }: MobileProps) => {
       {...rest}>
       <IconButton
         display={{ base: 'flex', md: 'none' }}
-        onClick={onOpen}
+        onClick={nav.control.onOpen}
         variant="outline"
         aria-label="open menu"
         icon={<FiMenu />}
@@ -123,6 +131,8 @@ const Nav = ({ onOpen, ...rest }: MobileProps) => {
 
       <HStack spacing={{ base: '0', md: '6' }}>
         <IconButton size="lg" variant="ghost" aria-label="open menu" icon={<FiBell />} />
+        <IconButton size="lg" variant="ghost" aria-label="share" icon={<FiShare />} />
+        <IconButton size="lg" variant="ghost" aria-label="flow" icon={<FiCompass />} ref={rightPane.trigger} onClick={rightPane.control.onOpen} />
         <Flex alignItems={'center'}>
           <Menu>
             <MenuButton py={2} transition="all 0.3s" _focus={{ boxShadow: 'none' }}>
@@ -138,7 +148,7 @@ const Nav = ({ onOpen, ...rest }: MobileProps) => {
                   alignItems="flex-start"
                   spacing="1px"
                   ml="2">
-                  <Text fontSize="sm">Justina Clark</Text>
+                  <Text fontSize="sm">Mike Wu</Text>
                   <Text fontSize="xs" color="gray.600">
                     Admin
                   </Text>
@@ -155,7 +165,7 @@ const Nav = ({ onOpen, ...rest }: MobileProps) => {
               <MenuItem>Settings</MenuItem>
               <MenuItem>Billing</MenuItem>
               <MenuDivider />
-              <MenuItem>Sign out</MenuItem>
+              <MenuItem>{"Sign out"}</MenuItem>
             </MenuList>
           </Menu>
         </Flex>
@@ -164,31 +174,55 @@ const Nav = ({ onOpen, ...rest }: MobileProps) => {
   )
 }
 
-const MainWindow = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure()
+const RightPane = ({ trigger, ctrl }: { trigger: IconButtonRef, ctrl: UseDisclosureReturn }) => {
   return (
-    <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
-      <SidebarContent onClose={() => onClose} display={{ base: 'none', md: 'block' }} />
-      <Drawer
-        isOpen={isOpen}
-        placement="left"
-        onClose={onClose}
-        returnFocusOnClose={false}
-        onOverlayClick={onClose}
-        size="full">
-        <DrawerContent>
-          <SidebarContent onClose={onClose} />
-        </DrawerContent>
-      </Drawer>
-      {/* mobilenav */}
-      <Nav onOpen={onOpen} />
-      <Box ml={{ base: 0, md: 48}}>
-        <HStack spacing={0} alignItems="stretch">
-          <ChatWindow chat="claude2" />
-          <PromptEditor />
-        </HStack>
+    <Drawer
+      isOpen={ctrl.isOpen}
+      placement='right'
+      size="lg"
+      onClose={ctrl.onClose}
+      finalFocusRef={trigger}
+    >
+      <DrawerOverlay />
+      <DrawerContent overflowY={"auto"}>
+        <DrawerCloseButton />
+        <WorkflowEditor />
+      </DrawerContent>
+    </Drawer>
+  )
+}
+
+const MainWindow = () => {
+  const navCtrl = useDisclosure()
+  const rightPaneCtrl = useDisclosure()
+  const rightPaneTrigger = React.useRef<HTMLButtonElement>(null)
+
+  return (
+    <>
+      <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
+        <SidebarContent onClose={() => navCtrl.onClose} display={{ base: 'none', md: 'block' }} />
+        <Drawer
+          isOpen={navCtrl.isOpen}
+          placement="left"
+          onClose={navCtrl.onClose}
+          returnFocusOnClose={false}
+          onOverlayClick={navCtrl.onClose}
+          size="full">
+          <DrawerContent>
+            <SidebarContent onClose={navCtrl.onClose} />
+          </DrawerContent>
+        </Drawer>
+        {/* mobilenav */}
+        <Nav
+          nav={{ control: navCtrl }}
+          rightPane={{ trigger: rightPaneTrigger, control: rightPaneCtrl }}
+        />
+        <Box ml={{ base: 0, md: 48 }}>
+          <ConversationWindow chat="claude2" />
+        </Box>
       </Box>
-    </Box>
+      <RightPane trigger={rightPaneTrigger} ctrl={rightPaneCtrl} />
+    </>
   )
 }
 

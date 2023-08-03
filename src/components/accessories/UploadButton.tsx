@@ -4,9 +4,13 @@ import * as api from '../../api/api';
 import { Attachment } from '../../types';
 
 type UploadedCallback = (file: Attachment) => void;
+type Props = {
+  onUploaded: UploadedCallback,
+  size?: 'sm' | 'md'
+}
 
-const FileUploadButton: React.FC<{onUploaded: UploadedCallback}> = ({onUploaded}: {onUploaded: UploadedCallback}) => {
-
+const FileUploadButton: React.FC<Props> = ({onUploaded, size='sm'}: Props) => {
+  const sized = {md: 8, sm: 6}[size];
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,7 +33,7 @@ const FileUploadButton: React.FC<{onUploaded: UploadedCallback}> = ({onUploaded}
         style={{ display: 'none' }}
         onChange={handleFileChange}
       />
-      <AttachmentIcon cursor="pointer" boxSize={8}
+      <AttachmentIcon cursor="pointer" boxSize={sized}
         onClick={() => inputRef.current?.click()}
       />
     </div>

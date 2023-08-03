@@ -14,8 +14,7 @@ const AttachmentBox: React.FC<{ attachment: Attachment }> =
   ({attachment}: {attachment:Attachment}) => {
   const fileType = parseMimeType(attachment.file_type);
   return (
-    <Box w={40} h={12} p={0} borderRadius={6} boxShadow="rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 0px 0px 0.5px, rgba(0, 0, 0, 0.05) 0px 0px 20px 0px, rgba(0, 0, 0, 0.1) 0px 1px 5px 0px
-    ">
+    <Box w={40} h={12} p={0} borderRadius={6} shadow="md">
       <HStack bg='blue.200' borderRadius={6} w="100%">
         <VStack pl={2} w={20}>
           <Text fontSize='md' color='white' fontWeight='bold'>{fileType}</Text>

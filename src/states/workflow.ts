@@ -1,5 +1,6 @@
 import React, { useReducer } from "react";
 import _ from 'lodash';
+import { Attachment, ModelType } from "../types";
 
 const templateGenPseudocode = `Read the document and provide the pseudocode, the pseudocode must provide all the details that is needed to know for start a payment request / calculate hash / send api / parse the response / verify response, the pseudocode must be complete and all the information is from the document, the psedocode must be complete and not missing any details. Be very careful don't miss any required parameters/fields, Be very careful do not make up anything. I want the complete psedocode, don't use the words "like, etc"
 Put the pseudocode in the code block.`;
@@ -20,12 +21,15 @@ Pseudocode for the \`pay\` method:
 
 API Interface definition in JSON format:
 \`\`\`json
-{api_interface}
+{interface_snippets}
 \`\`\``
 
 type WorkflowStep = {
   title: string;
+  model: ModelType,
   prompt: string;
+  attachments: Attachment[],
+  output: string;
 }
 
 export type Workflow = {
@@ -36,9 +40,8 @@ export type Workflow = {
 }
 
 type WorkflowAction = {
-  changeTemplate1: (text: string) => void,
-  changeTemplate2: (text: string) => void,
-  changeTemplate3: (text: string) => void
+  updateStep: (i: number, update: Partial<WorkflowStep>) => void,
+  addAttachmentInStep: (i: number, attachment: Attachment) => void
 }
 
 const fusion1: Workflow = {
@@ -47,16 +50,25 @@ const fusion1: Workflow = {
   triggerWords: 'fusion integration',
   steps: [
     {
-      title: 'Claude to read the EGHL Integration Document',
-      prompt: templateGenPseudocode
+      title: 'Read EGHL Document, Generate pseudocode',
+      model: 'Claude2',
+      attachments: [],
+      prompt: templateGenPseudocode,
+      output: '{pseudocode}'
     },
     {
-      title: 'Glaude to summarize the Fusion API Definition',
-      prompt: templateRelevantInterface
+      title: 'Summarize Fusion API Definition',
+      model: 'Claude2',
+      attachments: [],
+      prompt: templateRelevantInterface,
+      output: '{interface_snippets}'
     },
     {
-      title: 'ChatGPT to combine the result and generate code.',
-      prompt: templateGenJava
+      title: 'Combine results, Generate Java code',
+      model: 'ChatGPT',
+      attachments: [],
+      prompt: templateGenJava,
+      output: '{to_chat}'
     },
   ]
 }
@@ -88,15 +100,14 @@ export const useWorkflow = (workflowId: string): [Workflow, WorkflowAction] => {
   const [state, dispatch] = useReducer(reducer, workflows);
   const currentWorkflow = state[workflowId];
   const currentWrokflowHandler = {
-    changeTemplate1: (text: string) => {
-      currentWorkflow.steps[0].prompt = text;
+    updateStep: (i: number, update: Partial<WorkflowStep>) => {
+      currentWorkflow.steps[i] = {...currentWorkflow.steps[i], ...update};
       dispatch({type: 'change', id: workflowId, workflow: currentWorkflow});
     },
-    changeTemplate2: (text: string) => {
-      currentWorkflow.steps[1].prompt = text;
-      dispatch({type: 'change', id: workflowId, workflow: currentWorkflow});
-    },
-    changeTemplate3: (text: string) => {
+    addAttachmentInStep: (i: number, attachment: Attachment) => {
+      const update = currentWorkflow.steps[i];
+      update.attachments.push(attachment);
+      currentWorkflow.steps[i] = {...currentWorkflow.steps[i], ...update};
       dispatch({type: 'change', id: workflowId, workflow: currentWorkflow});
     }
   }

@@ -43,3 +43,5 @@ export interface Attachment {
   file_size: number;
   extracted_content: string;
 }
+
+export type ModelType = 'ChatGPT' | 'Claude2';
