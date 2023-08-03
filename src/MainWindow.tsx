@@ -1,4 +1,4 @@
-import { IconButton, Avatar, Box, CloseButton, Flex, HStack, VStack, Icon, useColorModeValue, Text, Drawer, DrawerContent, useDisclosure, BoxProps, FlexProps, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Image, DrawerOverlay, Button, DrawerBody, DrawerCloseButton, DrawerFooter, DrawerHeader, Input, UseDisclosureReturn, } from '@chakra-ui/react'
+import { IconButton, Avatar, Box, CloseButton, Flex, HStack, VStack, Icon, useColorModeValue, Text, Drawer, DrawerContent, useDisclosure, BoxProps, FlexProps, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Image, DrawerOverlay, DrawerCloseButton, UseDisclosureReturn, } from '@chakra-ui/react'
 import { FiHome, FiTrendingUp, FiCompass, FiStar, FiSettings, FiMenu, FiBell, FiChevronDown, FiShare, } from 'react-icons/fi'
 import { IconType } from 'react-icons'
 import ConversationWindow from './components/chat/ConversationWindow'
@@ -218,7 +218,7 @@ const MainWindow = () => {
           rightPane={{ trigger: rightPaneTrigger, control: rightPaneCtrl }}
         />
         <Box ml={{ base: 0, md: 48 }}>
-          <ConversationWindow chat="claude2" />
+          <ConversationWindow chat="azure-chatgpt3" />
         </Box>
       </Box>
       <RightPane trigger={rightPaneTrigger} ctrl={rightPaneCtrl} />
