@@ -1,5 +1,5 @@
 import { extendTheme, ChakraBaseProvider } from '@chakra-ui/react'
-import SettingPage from './SettingsPage';
+import { BrowserRouter as Router } from 'react-router-dom';
 import MainWindow from './MainWindow';
 import { WorkflowContext, workflows } from './states/workflow';
 
@@ -18,9 +18,10 @@ function App() {
   return (
     <ChakraBaseProvider theme={theme}>
       <WorkflowContext.Provider value={workflows}>
-        <MainWindow />
+        <Router>
+          <MainWindow />
+        </Router>
       </WorkflowContext.Provider>
-      <SettingPage />
     </ChakraBaseProvider>
   )
 }

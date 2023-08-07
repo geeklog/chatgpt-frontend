@@ -35,6 +35,7 @@ type WorkflowStep = {
 export type Workflow = {
   id: string,
   title: string;
+  description: string;
   triggerWords: string,
   steps: WorkflowStep[]
 }
@@ -47,6 +48,7 @@ type WorkflowAction = {
 const fusion1: Workflow = {
   id: 'fusion1',
   title: 'Fusion Payment API Integration to EGHL',
+  description: 'fusion integration',
   triggerWords: 'fusion integration',
   steps: [
     {

@@ -45,3 +45,5 @@ export interface Attachment {
 }
 
 export type ModelType = 'ChatGPT' | 'Claude2';
+
+export type IconButtonRef = React.MutableRefObject<HTMLButtonElement | null>;

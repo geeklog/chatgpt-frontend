@@ -35,7 +35,7 @@ function ChatWindow({chat}: {chat: 'claude2' | 'azure-chatgpt3'}) {
   const typingHook = useState("");
   const [typing, setTyping] = typingHook;
   const nLineHook = useState(1);
-  const [nLine] = nLineHook;
+  const [nLine, setNLine] = nLineHook;
   const [messagesViewRef, scrollToBottom] = useScrollToBottom();
   
   let [sessionID, setSessionID] = useMemoryStorage('chat-session-id', uuidv4());
@@ -140,6 +140,7 @@ function ChatWindow({chat}: {chat: 'claude2' | 'azure-chatgpt3'}) {
       setSessionID(sessionID);
     }
 
+    setNLine(1);
     setTyping('');
 
     const pair = nanoid(6);
@@ -221,6 +222,8 @@ function ChatWindow({chat}: {chat: 'claude2' | 'azure-chatgpt3'}) {
   const maxLines = isMobile ? 3: 10;
   const nLineLimited = nLine > maxLines ? maxLines : nLine;
   const hChatTextfield = `calc(${lh}em * ${nLineLimited} + 1em)`;
+
+  console.log('hChatTextfield', hChatTextfield);
 
   // Separate messages into conversations by sessionID
   const conversations = chunks(getMessages(), (msg => uuid2number(msg.sessionID)));

@@ -33,6 +33,14 @@ function ChatTextarea(props: TextareaProps & {typingHook: any, nLineHook: any, o
     }
   };
 
+  function handlePaste(event: any) {
+    event.preventDefault();
+    const pastedText = event.clipboardData.getData("text");
+    const newValue = value + pastedText.trim();
+    setValue(newValue);
+    setNLines(newValue.split('\n').length);
+  }
+
   const handleChange = (event: any) => {
     setValue(event.target.value);
     setNLines(event.target.value.split('\n').length);
@@ -43,6 +51,7 @@ function ChatTextarea(props: TextareaProps & {typingHook: any, nLineHook: any, o
       value={value}
       onChange={handleChange}
       onKeyDown={handleKeyDown as any}
+      onPaste={handlePaste}
       {...restProps}
     />
   );

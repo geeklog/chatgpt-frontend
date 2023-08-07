@@ -1,80 +1,82 @@
-import React, { useState } from "react";
+import { LockIcon } from "@chakra-ui/icons";
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
   FormControl,
   FormLabel,
   Switch,
   Input,
-  useMediaQuery,
-  Button,
+  Box,
+  InputGroup,
+  InputLeftElement,
+  Stack
 } from "@chakra-ui/react";
 import { useSettings } from "./contexts/Settings";
+import { useLocalStorage } from "./hooks/useLocalStorage";
 
 const SettingPage = () => {
   const settings = useSettings();
-  const { isOpen, onClose } = settings.modal!;
-  const [isMobile] = useMediaQuery("(max-width: 768px)");
-  const [enableInitialPrompt, setEnableInitialPrompt] = useState(
-    localStorage.getItem("enableInitialPrompt") === "true"
-  );
-  const [initialPrompt, setInitialPrompt] = useState(
-    localStorage.getItem("initialPrompt") || ""
-  );
+
+  const [enableInitialPrompt, setEnableInitialPrompt] = useLocalStorage('enableInitialPrompt', false);
+  const [initialPrompt, setInitialPrompt] = useLocalStorage('initialPrompt', 'false');
+  const [claudeSessionKey, setClaudeSessionKey] = useLocalStorage('claudeSessionKey', '');
 
   const handleEnableInitialPromptChange = (event: any) => {
     const value = event.target.checked;
     setEnableInitialPrompt(value);
-    localStorage.setItem("enableInitialPrompt", value.toString());
   };
 
   const handleInitialPromptChange = (event: any) => {
     const value = event.target.value;
     setInitialPrompt(value);
-    localStorage.setItem("initialPrompt", value);
   };
 
-  const handleSaveSettings = () => {
-    onClose();
+  const handleClaudeSessionKeyChange = (event: any) => {
+    const value = event.target.value;
+    setClaudeSessionKey(value);
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered={!isMobile}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Settings</ModalHeader>
-        <ModalBody>
-          <FormControl display="flex" alignItems="center">
-            <FormLabel htmlFor="enable-initial-prompt" mb="0">
-              Enable Initial Prompt
-            </FormLabel>
-            <Switch
-              id="enable-initial-prompt"
-              isChecked={enableInitialPrompt}
-              onChange={handleEnableInitialPromptChange}
+    <Box bg="white" h="100%"  >
+      <Stack spacing={4} p={5} maxW={600} mx="auto">
+
+        <FormControl>
+          <FormLabel>Claude session Key</FormLabel>
+          <InputGroup>
+            <InputLeftElement pointerEvents='none'>
+              <LockIcon color='gray.300' />
+            </InputLeftElement>
+            <Input
+              id="claude-session-key"
+              placeholder="Put your claude session key here"
+              value={claudeSessionKey}
+              onChange={handleClaudeSessionKeyChange}
+            >
+            </Input>
+          </InputGroup>
+        </FormControl>
+
+        <FormControl display="flex" alignItems="center">
+          <FormLabel htmlFor="enable-initial-prompt" mb="0">
+            Enable Initial Prompt
+          </FormLabel>
+          <Switch
+            id="enable-initial-prompt"
+            isChecked={enableInitialPrompt}
+            onChange={handleEnableInitialPromptChange}
+          />
+        </FormControl>
+        {enableInitialPrompt && (
+          <FormControl>
+            <FormLabel htmlFor="initial-prompt">Initial Prompt</FormLabel>
+            <Input
+              id="initial-prompt"
+              placeholder="Enter initial prompt"
+              value={initialPrompt}
+              onChange={handleInitialPromptChange}
             />
           </FormControl>
-          {enableInitialPrompt && (
-            <FormControl mt="4">
-              <FormLabel htmlFor="initial-prompt">Initial Prompt</FormLabel>
-              <Input
-                id="initial-prompt"
-                placeholder="Enter initial prompt"
-                value={initialPrompt}
-                onChange={handleInitialPromptChange}
-              />
-            </FormControl>
-          )}
-        </ModalBody>
-        <ModalFooter>
-          <Button onClick={handleSaveSettings}>Save</Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+        )}
+      </Stack>
+    </Box >
   );
 };
 
