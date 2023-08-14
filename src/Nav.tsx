@@ -67,7 +67,7 @@ export const Nav = ({ nav, rightPane, ...rest }: NavProps) => {
         fontSize="2xl"
         fontFamily="monospace"
         fontWeight="bold">
-        AIPower
+        Mindset
       </Text>
 
       <HStack spacing={{ base: '0', md: '6' }}>

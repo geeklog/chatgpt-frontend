@@ -36,7 +36,7 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
       <Flex h="20" alignItems="center" mx="5" justifyContent="space-between">
         <Image src="/Logo.png" h={10} />
         <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
-          AIPower
+          Mindset
         </Text>
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>

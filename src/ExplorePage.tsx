@@ -31,7 +31,6 @@ const WorkflowCard = ({workflow}: {workflow: Workflow}) => <Card maxW='sm'>
 </Card>
 
 const ExplorePage = () => {
-  
   return (
     <Box bg="white" h="100%" p={10}>
       <Grid templateColumns='repeat(5, 1fr)' gap={6}>
