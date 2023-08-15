@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Box, VStack, InputGroup, Flex, Divider, useDisclosure, Button, HStack } from "@chakra-ui/react";
+import { useContext, useState } from 'react';
+import { Box, VStack, InputGroup, Divider, HStack } from "@chakra-ui/react";
 import { v4 as uuidv4 } from 'uuid';
 import './ConversationPane.css'
 import useMemoryStorage from '../../hooks/useMemoryStorage';
@@ -12,7 +12,7 @@ import useScrollToBottom from "../../hooks/useScrollToBottom";
 import {texts} from '../../states/texts';
 import ChatTextarea from './ChatTextarea';
 import useDeviceDetection from '../../hooks/useDeviceDetection';
-import { CheckIcon, ExternalLinkIcon, AttachmentIcon } from '@chakra-ui/icons';
+import { CheckIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import FadedButton from '../accessories/FadedButton';
 import { b64DecodeUnicode, b64EncodeUnicode, uuid2number } from '../../utils/hashing';
 import { s } from '../../states/texts';
@@ -24,10 +24,15 @@ import {nanoid} from 'nanoid';
 import FileUploadButton from '../accessories/UploadButton';
 import AttachmentBox from '../accessories/AttachmentBox';
 import { getWorkflowByTriggerWord } from '../../states/workflow';
+import { useSettings } from '../../states/settings';
 
-function ChatWindow({chat}: {chat: 'claude2' | 'azure-chatgpt3'}) {
+function ChatWindow() {
+  const settings = useSettings();
+  const llm = settings.llm;
+  console.log('llm', llm);
+
   const showInitialPrompt = false;
-  const enableAttachments = chat === 'claude2';
+  const enableAttachments = llm === 'Claude2';
   const {locale} = useLocale();
   const {isMobile} = useDeviceDetection();
   
@@ -173,7 +178,7 @@ function ChatWindow({chat}: {chat: 'claude2' | 'azure-chatgpt3'}) {
 
     try {
       await api.chatStream(
-        chat,
+        llm,
         sessionID,
         pair,
         removePendingMessages(getMessages()),
@@ -222,8 +227,6 @@ function ChatWindow({chat}: {chat: 'claude2' | 'azure-chatgpt3'}) {
   const maxLines = isMobile ? 3: 10;
   const nLineLimited = nLine > maxLines ? maxLines : nLine;
   const hChatTextfield = `calc(${lh}em * ${nLineLimited} + 1em)`;
-
-  console.log('hChatTextfield', hChatTextfield);
 
   // Separate messages into conversations by sessionID
   const conversations = chunks(getMessages(), (msg => uuid2number(msg.sessionID)));

@@ -1,5 +1,5 @@
 import { Workflow } from "../states/workflow";
-import { Attachment, Message } from "../types";
+import { Attachment, Message, ModelType } from "../types";
 import { withSSE } from "./sse";
 
 export async function chat(message: string, sessionID: string, pair: string) {
@@ -58,7 +58,7 @@ export async function workflows(
 }
 
 export async function chatStream(
-  chatType: 'claude2' | 'azure-chatgpt3',
+  chatType: ModelType,
   sessionID: string,
   pair: string,
   history: Message[],

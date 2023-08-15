@@ -44,6 +44,11 @@ export interface Attachment {
   extracted_content: string;
 }
 
-export type ModelType = 'ChatGPT' | 'Claude2';
+export type ModelType = 'ChatGPT' | 'Claude2' | 'GPT4';
+export enum ModelTypeEnum {
+  ChatGPT = 'ChatGPT',
+  Claude2 = 'Claude2',
+  GPT4 = 'GPT4'
+}
 
 export type IconButtonRef = React.MutableRefObject<HTMLButtonElement | null>;

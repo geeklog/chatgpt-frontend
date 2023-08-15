@@ -1,9 +1,12 @@
-import { IconButton, Avatar, Box, Flex, HStack, VStack, Icon, useColorModeValue, Text, FlexProps, Menu, MenuButton, MenuDivider, MenuItem, MenuList, UseDisclosureReturn } from '@chakra-ui/react'
+import { IconButton, Avatar, Box, Flex, HStack, VStack, Icon, useColorModeValue, Text, FlexProps, Menu, MenuButton, MenuDivider, MenuItem, MenuList, UseDisclosureReturn, Button } from '@chakra-ui/react'
 import { FiCompass, FiMenu, FiBell, FiChevronDown, FiShare } from 'react-icons/fi'
 import { IconType } from 'react-icons'
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { IconButtonRef } from './types'
+import { ChevronDownIcon } from '@chakra-ui/icons'
+import { globalModelConfigs, ModelConfig } from './states/llm'
+import { useSettings } from './states/settings'
 
 interface NavItemProps extends FlexProps {
   icon: IconType
@@ -42,6 +45,49 @@ export const NavItem = ({ icon, to, children, ...rest }: NavItemProps) => {
   )
 }
 
+function ModelItem({model}: {model: ModelConfig}) {
+  return (<HStack>
+    <Avatar
+      size="xs"
+      src={`/avatars/${model.icon}`}
+      objectPosition="center"
+    />
+    <Text bg={model.bg} color={model.fg}>{model.name}</Text>
+  </HStack>);
+}
+
+function ModelSelector() {
+  const settings = useSettings();
+  const llm = settings.llm;
+  const cfg = globalModelConfigs[llm];
+  const {ChatGPT, Claude2, GPT4} = globalModelConfigs;
+  return (
+    <Menu>
+      <MenuButton as={Button} rightIcon={<ChevronDownIcon />} bg="white" size="lg">
+      <HStack>
+        <Avatar
+          size="xs"
+          src={`/avatars/${cfg.icon}`}
+          objectPosition="center"
+        />
+        <Text>{cfg.name}</Text>
+      </HStack>
+      </MenuButton>
+      <MenuList>
+        <MenuItem bg={ChatGPT.bg} color={ChatGPT.fg} onClick={() => settings.setLLM('ChatGPT')}>
+          <ModelItem model={ChatGPT} />
+        </MenuItem>
+        <MenuItem bg={GPT4.bg} color={GPT4.fg} onClick={() => settings.setLLM('GPT4')}>
+          <ModelItem model={GPT4} />
+        </MenuItem>
+        <MenuItem bg={Claude2.bg} color={Claude2.fg} onClick={() => settings.setLLM('Claude2')}>
+          <ModelItem model={Claude2} />
+        </MenuItem>
+      </MenuList>
+    </Menu>
+  );
+}
+
 export const Nav = ({ nav, rightPane, ...rest }: NavProps) => {
   return (
     <Flex
@@ -61,7 +107,6 @@ export const Nav = ({ nav, rightPane, ...rest }: NavProps) => {
         aria-label="open menu"
         icon={<FiMenu />}
       />
-
       <Text
         display={{ base: 'flex', md: 'none' }}
         fontSize="2xl"
@@ -69,7 +114,7 @@ export const Nav = ({ nav, rightPane, ...rest }: NavProps) => {
         fontWeight="bold">
         Mindset
       </Text>
-
+      <ModelSelector />
       <HStack spacing={{ base: '0', md: '6' }}>
         <IconButton size="lg" variant="ghost" aria-label="open menu" icon={<FiBell />} />
         <IconButton size="lg" variant="ghost" aria-label="share" icon={<FiShare />} />
@@ -81,7 +126,7 @@ export const Nav = ({ nav, rightPane, ...rest }: NavProps) => {
                 <Avatar
                   size={'sm'}
                   src={
-                    'https://images.unsplash.com/photo-1619946794135-5bc917a27793?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=b616b2c5b373a80ffc9636ba24f7a4a9'
+                    '/avatars/chatgpt.webp'
                   }
                 />
                 <VStack

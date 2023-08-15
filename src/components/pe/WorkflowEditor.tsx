@@ -1,47 +1,39 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Avatar, Box, Button, FormLabel, Heading, HStack, Input, Menu, MenuButton, MenuItem, MenuList, Tag, Text, Textarea } from '@chakra-ui/react';
 import { MdPlayArrow, MdPlayCircleFilled } from "react-icons/md"
+import { globalModelConfigs, ModelConfig } from '../../states/llm';
 import { useWorkflow } from '../../states/workflow';
 import { Attachment, ModelType } from '../../types';
 import AttachmentBox from '../accessories/AttachmentBox';
 import FileUploadButton from '../accessories/UploadButton';
 
-const models: any = {
-  ChatGPT: {
-    fg: 'white',
-    bg: '#11a37f',
-    icon: 'chatgpt.webp'
-  },
-  Claude2: {
-    fg: 'black',
-    bg: '#cc9b7b',
-    icon: 'claude.webp'
-  }
-};
-
-function ModelItem({model}: {model: string}) {
+function ModelItem({model}: {model: ModelConfig}) {
   return (<HStack>
     <Avatar
       size="xs"
-      src={`/avatars/${models[model].icon}`}
+      src={`/avatars/${model.icon}`}
       objectPosition="center"
     />
-    <Text bg={models[model].bg} color={models[model].fg}>{model}</Text>
+    <Text bg={model.bg} color={model.fg}>{model.name}</Text>
   </HStack>);
 }
 
 function ModelSelector({model, setModel}: {model: ModelType, setModel: (model: ModelType) => void}) {
+  const cfg = globalModelConfigs[model];
   return (
     <Menu>
-      <MenuButton as={Button} rightIcon={<ChevronDownIcon />} size="sm" bg={models[model].bg}>
-        <ModelItem model={model}/>
+      <MenuButton as={Button} rightIcon={<ChevronDownIcon />} size="sm" bg={cfg.bg}>
+        <ModelItem model={cfg}/>
       </MenuButton>
       <MenuList>
-        <MenuItem bg={models.ChatGPT.bg} color={models.ChatGPT.fg} onClick={() => setModel('ChatGPT')}>
-          <ModelItem model="ChatGPT" />
+        <MenuItem bg={globalModelConfigs.ChatGPT.bg} color={globalModelConfigs.ChatGPT.fg} onClick={() => setModel('ChatGPT')}>
+          <ModelItem model={globalModelConfigs.ChatGPT} />
         </MenuItem>
-        <MenuItem bg={models.Claude2.bg} color={models.Claude2.fg} onClick={() => setModel('Claude2')}>
-          <ModelItem model="Claude2" />
+        <MenuItem bg={globalModelConfigs.ChatGPT.bg} color={globalModelConfigs.ChatGPT.fg} onClick={() => setModel('GPT4')}>
+          <ModelItem model={globalModelConfigs.GPT4} />
+        </MenuItem>
+        <MenuItem bg={globalModelConfigs.Claude2.bg} color={globalModelConfigs.Claude2.fg} onClick={() => setModel('Claude2')}>
+          <ModelItem model={globalModelConfigs.Claude2} />
         </MenuItem>
       </MenuList>
     </Menu>

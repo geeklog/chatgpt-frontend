@@ -9,8 +9,8 @@ import {
   InputLeftElement,
   Stack
 } from "@chakra-ui/react";
-import { useSettings } from "./contexts/Settings";
 import { useLocalStorage } from "./hooks/useLocalStorage";
+import { useSettings } from "./states/settings";
 
 const SettingPage = () => {
   const settings = useSettings();

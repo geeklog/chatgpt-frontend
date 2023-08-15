@@ -1,4 +1,4 @@
-import { Box, Drawer, DrawerCloseButton, DrawerContent, DrawerOverlay, Heading, useColorModeValue, useDisclosure, UseDisclosureReturn } from '@chakra-ui/react'
+import { Box, Drawer, DrawerCloseButton, DrawerContent, DrawerOverlay, useColorModeValue, useDisclosure, UseDisclosureReturn } from '@chakra-ui/react'
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
 import ConversationWindow from './components/chat/ConversationWindow'
@@ -56,7 +56,7 @@ const MainWindow = () => {
           <Routes>
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/explore" element={<ExplorePage />} />
-            <Route path="/" element={<ConversationWindow chat="azure-chatgpt3" />} />
+            <Route path="/" element={<ConversationWindow />} />
           </Routes>
         </Box>
       </Box>
