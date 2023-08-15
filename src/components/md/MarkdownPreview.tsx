@@ -8,10 +8,13 @@ import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter'
+import jsx from 'react-syntax-highlighter/dist/cjs/languages/prism/jsx'
 import tsx from 'react-syntax-highlighter/dist/cjs/languages/prism/tsx'
 import python from 'react-syntax-highlighter/dist/cjs/languages/prism/python'
 import java from 'react-syntax-highlighter/dist/cjs/languages/prism/java'
+import javascript from 'react-syntax-highlighter/dist/cjs/languages/prism/javascript'
 import typescript from 'react-syntax-highlighter/dist/cjs/languages/prism/typescript'
+import css from 'react-syntax-highlighter/dist/cjs/languages/prism/css'
 import scss from 'react-syntax-highlighter/dist/cjs/languages/prism/scss'
 import bash from 'react-syntax-highlighter/dist/cjs/languages/prism/bash'
 import markdown from 'react-syntax-highlighter/dist/cjs/languages/prism/markdown'
@@ -20,8 +23,13 @@ import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import MermaidRenderer from './MermaidRenderer';
 import Prompt from '../chat/Prompt';
 
+SyntaxHighlighter.registerLanguage('jsx', jsx)
 SyntaxHighlighter.registerLanguage('tsx', tsx)
+SyntaxHighlighter.registerLanguage('javascript', javascript)
+SyntaxHighlighter.registerLanguage('js', javascript)
 SyntaxHighlighter.registerLanguage('typescript', typescript)
+SyntaxHighlighter.registerLanguage('ts', typescript)
+SyntaxHighlighter.registerLanguage('css', css)
 SyntaxHighlighter.registerLanguage('scss', scss)
 SyntaxHighlighter.registerLanguage('bash', bash)
 SyntaxHighlighter.registerLanguage('markdown', markdown)

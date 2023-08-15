@@ -48,6 +48,8 @@ function ChatTextarea(props: TextareaProps & {typingHook: any, nLineHook: any, o
 
   return (
     <Textarea
+      fontFamily="source-code-pro, Menlo, Monaco, Consolas, 'Courier New'"
+      nowrap="true"
       value={value}
       onChange={handleChange}
       onKeyDown={handleKeyDown as any}

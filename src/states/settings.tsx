@@ -1,5 +1,7 @@
-import React, { createContext, useReducer, useContext } from 'react';
+import React, { createContext, useReducer, useContext, useEffect } from 'react';
 import { ModelType, ModelTypeEnum } from '../types';
+
+const STORAGE_KEY = 'chatapp.settings';
 
 type Settings = {
   llm: ModelType;
@@ -26,13 +28,29 @@ const SettingContext = createContext<SettingContextProps | undefined>(undefined)
 export const SettingProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const [state, dispatch] = useReducer(reducer, { llm: ModelTypeEnum.ChatGPT });
+  
+  const initialState = localStorage.getItem(STORAGE_KEY)
+    ? JSON.parse(localStorage.getItem(STORAGE_KEY)!)
+    : { llm: ModelTypeEnum.ChatGPT };
+
+  const [state, dispatch] = useReducer(
+    reducer,
+    initialState
+  );
+
+  // Store state to localStorage whenever state changes
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [state.llm]);
+
   const setters = {
     setLLM(llm: ModelType) {
       dispatch({type: 'SET_LLM', payload: llm})
     }
   }
+
   const settings = {...state, ...setters}
+
   return (
     <SettingContext.Provider value={settings}>
       {children}

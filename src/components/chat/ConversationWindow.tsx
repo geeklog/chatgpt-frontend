@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { Box, VStack, InputGroup, Divider, HStack } from "@chakra-ui/react";
 import { v4 as uuidv4 } from 'uuid';
 import './ConversationPane.css'
@@ -7,7 +7,7 @@ import * as api from '../../api/api';
 import SendButton from "../accessories/SendButton";
 import { Attachment, Message, MessageMedia } from '../../types';
 import MessageBubble from "./MessageBubble";
-import { botPending, getLastestUserQuery, removePendingMessages, replaceBotErrorBubbleWithPending, replaceBotPendingBubbleWithAnswer, replaceBotPendingBubbleWithError, streamingAnswer, userMessage } from "../../states/MessagesHandler";
+import { botPending, getLastestUserQuery, removePendingMessages, replaceBotErrorBubbleWithPending, replaceBotPendingBubbleWithAnswer, replaceBotPendingBubbleWithError, streamingAnswer, userMessage } from "../../states/messages";
 import useScrollToBottom from "../../hooks/useScrollToBottom";
 import {texts} from '../../states/texts';
 import ChatTextarea from './ChatTextarea';
